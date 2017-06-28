@@ -3,27 +3,29 @@ import operator
 
 from functools import reduce
 
-'''
-http://oeis.org/A000045
-http://mathworld.wolfram.com/FibonacciNumber.html
 
-Fibonacci
-    - if n = 0; 0
-    - if n = 1; 1
-    - if n > 1; Fn-1 + Fn-2
-'''
 def fib(n):
+    '''
+    http://oeis.org/A000045
+    http://mathworld.wolfram.com/FibonacciNumber.html
+
+    Fibonacci
+        - if n = 0; 0
+        - if n = 1; 1
+        - if n > 1; Fn-1 + Fn-2
+    '''
     if n < 2:
         # if n == 0 return 0
         # if n == 1 return 1
         return n
     return fib(n-2) + fib(n-1)
 
-'''
-https://stackoverflow.com/questions/17331290/how-to-check-for-palindrome-using-python-logic
-    - Using slice
-'''
+
 def is_palindromic(n):
+    '''
+    https://stackoverflow.com/questions/17331290/how-to-check-for-palindrome-using-python-logic
+        - Using slice
+    '''
     return n == n[::-1]
 
 
@@ -83,7 +85,7 @@ def factors(n):
 
 def is_square(integer):
     root = math.sqrt(integer)
-    if int(root + 0.5) ** 2 == integer: 
+    if int(root + 0.5) ** 2 == integer:
         return True
     else:
         return False
@@ -94,7 +96,7 @@ def prime_sieve(sieveSize):
     # the Sieve of Eratosthenes algorithm.
 
     sieve = [True] * sieveSize
-    sieve[0] = False # zero and one are not prime numbers
+    sieve[0] = False  # zero and one are not prime numbers
     sieve[1] = False
 
     # create the sieve
@@ -107,7 +109,11 @@ def prime_sieve(sieveSize):
     # compile the list of primes
     primes = []
     for i in range(sieveSize):
-        if sieve[i] == True:
+        if sieve[i] is True:
             primes.append(i)
 
     return primes
+
+
+def triangle_number(n):
+    return (n * (n+1)) / 2
