@@ -25,9 +25,11 @@ def main():
         print('[url request failed] ', url)
         return
     soup = BeautifulSoup(r.text, 'html.parser')
+    print("'''")
+    print('Problem %d' % p)
     for content in soup.find_all(match_soup_class(['problem_content'])):
         print(content.text)
-
+    print("'''")
 
 if __name__ == '__main__':
     main()
