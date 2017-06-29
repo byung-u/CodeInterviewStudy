@@ -14,22 +14,26 @@ def match_soup_class(target, mode='class'):
 
 
 def main():
-    if len(sys.argv) == 1:
-        p = 1
-    else:
-        p = int(sys.argv[1])
+    with open('p1_100.py', 'a') as f:
+        if len(sys.argv) == 1:
+            p = 1
+        else:
+            p = int(sys.argv[1])
 
-    url = 'https://projecteuler.net/problem=%d' % p
-    r = get(url)
-    if r.status_code != codes.ok:
-        print('[url request failed] ', url)
-        return
-    soup = BeautifulSoup(r.text, 'html.parser')
-    print("'''")
-    print('Problem %d' % p)
-    for content in soup.find_all(match_soup_class(['problem_content'])):
-        print(content.text)
-    print("'''")
+        url = 'https://projecteuler.net/problem=%d' % p
+        r = get(url)
+        if r.status_code != codes.ok:
+            print('[url request failed] ', url)
+            return
+        soup = BeautifulSoup(r.text, 'html.parser')
+        f.write("\n'''")
+        problem = '\nProblem %d' % p
+        f.write(problem)
+        for content in soup.find_all(match_soup_class(['problem_content'])):
+            f.write(content.text)
+        f.write("'''")
+    f.closed
+
 
 if __name__ == '__main__':
     main()
