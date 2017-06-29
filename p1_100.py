@@ -2,10 +2,13 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import math
+import string
+from itertools import groupby, permutations
 from functools import reduce
 
 from util import (fib, is_palindromic, prime_sieve,
-                  prime_factors, triangle_number, factorial)
+                  prime_factors, triangle_number, factorial,
+                  factors)
 
 
 '''
@@ -433,7 +436,6 @@ What is the value of the first triangle number to have over five hundred divisor
 
 
 def p12():
-    from itertools import groupby
     i = 10000
     while(1):
         tn = triangle_number(i)
@@ -827,24 +829,19 @@ Evaluate the sum of all the amicable numbers under 10000.
 '''
 
 
-def d(n):
-    total = 0
-    for i in range(1, int(math.sqrt(n)) + 1):
-        if n % i == 0:
-            total += i
-            total += n // i
-    return total - n
-
-
 def p21():
     amicable_pair = []
     for a in range(1, 10000):
         if a in amicable_pair:
             continue
-        b = d(a)
+        factor_a = factors(a)
+        b = sum(list(factor_a)) - a
         if a == b:  # where a ≠ b
             continue
-        if d(b) == a:
+
+        factor_b = factors(b)
+        amicable_b = sum(list(factor_b)) - b
+        if amicable_b == a:
             amicable_pair.append(a)
             amicable_pair.append(b)
     print('[21]: ', sum(amicable_pair))
@@ -861,4 +858,186 @@ For example, when the list is sorted into alphabetical order,
 COLIN, which is worth 3 + 15 + 12 + 9 + 14 = 53, is the 938th name in the list.
 So, COLIN would obtain a score of 938 × 53 = 49714.
 What is the total of all the name scores in the file?
+'''
+
+
+def get_alphabet_position_dict():
+    a = string.ascii_uppercase
+    b = list(range(1, 27))
+    return dict(zip(a, b))
+
+
+def get_name_worth(d, aa):
+    worth = 0
+    for i in range(len(aa)):
+        worth += d[aa[i]]
+    return worth
+
+
+def p22():
+    total = 0
+    position_dict = get_alphabet_position_dict()
+
+    with open('names.txt') as f:
+        for line in f:
+            names = line.replace('"', '').replace('\n', '').split(',')
+    names = sorted(names)
+    for idx, name in enumerate(names):
+        worth = get_name_worth(position_dict, name)
+        total += ((idx + 1) * worth)
+
+    print('[22]: ', total)
+
+
+'''
+Problem 23
+A perfect number is
+a number for which the sum of its proper divisors is exactly equal to the number.
+For example, the sum of the proper divisors of 28 would be 1 + 2 + 4 + 7 + 14 = 28,
+which means that 28 is a perfect number.
+A number n is called deficient
+if the sum of its proper divisors is less than n and it is called abundant
+if this sum exceeds n.
+As 12 is the smallest abundant number, 1 + 2 + 3 + 4 + 6 = 16,
+the smallest number that can be written as the sum of two abundant numbers is 24.
+By mathematical analysis,
+it can be shown that all integers greater than 28123 can be written
+as the sum of two abundant numbers.
+However, this upper limit cannot be reduced any further by analysis
+even though it is known that the greatest number
+that cannot be expressed as the sum of two abundant numbers is less than this limit.
+Find the sum of all the positive integers which cannot be written
+as the sum of two abundant numbers.
+'''
+
+
+def is_abundant(n):
+    results = set()
+    for i in range(1, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            results.add(i)
+            results.add(n // i)
+
+    divisors_sum = sum(list(results)) - n
+    return divisors_sum > n
+
+
+def p23():  # O(n^2)
+    total = 0
+    abundants = list(x for x in range(1, 28123 + 1) if is_abundant(x))
+    abundants_sum = set()
+    for i in range(0, len(abundants)):
+        for j in range(i, len(abundants)):
+            abundants_sum.add(abundants[i] + abundants[j])
+
+    for i in range(1, 28123 + 1):
+        if i in abundants_sum:
+            continue
+        total += i
+    print('[23]: ', total)
+
+
+'''
+Problem 24
+A permutation is an ordered arrangement of objects.
+For example, 3124 is one possible permutation of the digits 1, 2, 3 and 4.
+If all of the permutations are listed numerically or alphabetically,
+we call it lexicographic order.
+The lexicographic permutations of 0, 1 and 2 are:
+012   021   102   120   201   210
+What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 6, 7, 8 and 9?
+'''
+
+
+def permutations_self(head, tail=''):
+    perms = []
+    len_h = len(head)
+    if len_h == 0:
+        perms.append(tail)
+    else:
+        for i in range(len_h):
+            p = permutations_self(head[0:i] + head[i + 1:], tail + head[i])
+            perms.extend(p)
+    return perms
+
+
+# https://stackoverflow.com/questions/104420/how-to-generate-all-permutations-of-a-list-in-python
+def p24():
+    print('[24]: ', ''.join(sorted(list(permutations(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 10)))[1000000 - 1]))
+
+
+'''
+Problem 25
+The Fibonacci sequence is defined by the recurrence relation:
+Fn = Fn−1 + Fn−2, where F1 = 1 and F2 = 1.
+Hence the first 12 terms will be:
+F1 = 1
+F2 = 1
+F3 = 2
+F4 = 3
+F5 = 5
+F6 = 8
+F7 = 13
+F8 = 21
+F9 = 34
+F10 = 55
+F11 = 89
+F12 = 144
+The 12th term, F12, is the first term to contain three digits.
+What is the index of the first term in the Fibonacci sequence to contain 1000 digits?
+'''
+
+
+def fib_number_of_digits(n):
+    '''
+    http://www.geeksforgeeks.org/finding-number-of-digits-in-nth-fibonacci-number/
+
+    fib(n) = (Φn - Ψ-n) / √5
+    where
+        Φ = (1 + √5) / 2
+        Ψ = (1 - √5) / 2
+
+    The above formula can be simplified,
+    fib(n) = round(Φn / √ 5)
+    Here round function indicates nearest integer.
+
+    Count of digits in Fib(n) = Log10Fib(n)
+                              = Log10(Φn / √ 5)
+                              = n*Log10(Φ) - Log10√5
+                              = n*Log10(Φ) - (Log105)/2
+    '''
+    PHI = 1.6180339887498948
+    if n == 1:
+        return 1
+
+    d = (n * math.log10(PHI)) - (math.log10(5) / 2)
+    return math.ceil(d)
+
+
+def p25():
+    i = 1
+    while(1):
+        fib_digit = fib_number_of_digits(i)
+        if fib_digit >= 1000:
+            print('[25]: ', i)
+            break
+        i += 1
+
+
+'''
+Problem 26
+A unit fraction contains 1 in the numerator. The decimal representation of the unit fractions with denominators 2 to 10 are given:
+
+1/2= 0.5
+1/3= 0.(3)
+1/4= 0.25
+1/5= 0.2
+1/6= 0.1(6)
+1/7= 0.(142857)
+1/8= 0.125
+1/9= 0.(1)
+1/10= 0.1
+
+Where 0.1(6) means 0.166666..., and has a 1-digit recurring cycle. It can be seen that 1/7 has a 6-digit recurring cycle.
+Find the value of d < 1000 for which 1/d contains the longest recurring cycle in its decimal fraction part.
 '''
