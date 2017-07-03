@@ -1095,7 +1095,7 @@ def p26():
         period = 1
         while pow(10, period, d) != 1:  # prime number minus one
             period += 1
-        if d -1 == period:
+        if d - 1 == period:
             break
     print('[26]: ', d)
 
@@ -1123,11 +1123,12 @@ for the quadratic expression that produces the maximum number of primes
 for consecutive values of n, starting with n = 0.
 '''
 
+
 def quadratic_formula(a, b):
     n = 0
     while(1):
         quad = (n ** 2) + (a * n) + b
-        ret =  is_prime(quad)
+        ret = is_prime(quad)
         if ret is False:
             return n
         n += 1
@@ -1135,7 +1136,7 @@ def quadratic_formula(a, b):
 
 
 def p27():
-    primes= prime_sieve(1000)
+    primes = prime_sieve(1000)
     consecutive = 0
     max_a, max_b = 0, 0
     for a in range(-999, 1000):
@@ -1187,6 +1188,7 @@ RIGHT = 2
 UP = 3
 VAL = 31  # n by n
 
+
 # FIXME : max 31 x 31
 def fill_matrix(matrix, x, y, value, walk, gap, direct):
 
@@ -1228,7 +1230,7 @@ def test_28():
     center_y = VAL // 2
     matrix = np.zeros((VAL, VAL))
     matrix[center_x][center_y] = 1
-    ret = fill_matrix(matrix, center_x+1, center_y, 2, 1, 1, RIGHT)
+    ret = fill_matrix(matrix, center_x + 1, center_y, 2, 1, 1, RIGHT)
     print(ret)
 
 
@@ -1237,7 +1239,7 @@ def get_diagoanl_sum(n, max_n, add_n):
     i = 1
     d_sum = n
     while(n < max_n):
-        n =  n + (i * term) + add_n
+        n = n + (i * term) + add_n
         d_sum += n
         i += 1
     return d_sum
@@ -1248,11 +1250,11 @@ def p28():
     total = 1
 
     # left down
-    ld_max = matrix * matrix - (3 * (matrix -1))
+    ld_max = matrix * matrix - (3 * (matrix - 1))
     total += get_diagoanl_sum(3, ld_max, 2)
 
     # right up
-    ru_max = matrix * matrix - (1 * (matrix -1))
+    ru_max = matrix * matrix - (1 * (matrix - 1))
     total += get_diagoanl_sum(7, ru_max, 6)
 
     # right down
@@ -1260,7 +1262,7 @@ def p28():
     total += get_diagoanl_sum(9, rd_max, 8)
 
     # left up
-    lu_max = matrix * matrix - (2 * (matrix -1))
+    lu_max = matrix * matrix - (2 * (matrix - 1))
     total += get_diagoanl_sum(5, lu_max, 4)
 
     print('[28]: ', total)
@@ -1279,10 +1281,230 @@ we get the following sequence of 15 distinct terms:
 How many distinct terms are in the sequence generated
 by ab for 2 ≤ a ≤ 100 and 2 ≤ b ≤ 100?
 '''
-def p29():
+
+
+def p29():  # O(n^2)
     seq = set()
     for a in range(2, 100 + 1):
         for b in range(2, 100 + 1):
             comb = a ** b
             seq.add(comb)
     print('[29]: ', len(seq))
+
+
+'''
+Problem 30
+Surprisingly there are only three numbers that can be written as
+the sum of fourth powers of their digits:
+    1634 = 1^4 + 6^4 + 3^4 + 4^4
+    8208 = 8^4 + 2^4 + 0^4 + 8^4
+    9474 = 9^4 + 4^4 + 7^4 + 4^4
+As 1 = 1^4 is not a sum it is not included.
+The sum of these numbers is 1634 + 8208 + 9474 = 19316.
+Find the sum of all the numbers that can be written as
+the sum of fifth powers of their digits.
+'''
+
+
+def p30():
+    '''
+    [0^5] 0
+    [1^5] 1
+    [2^5] 32
+    [3^5] 243
+    [4^5] 1024
+    [5^5] 3125
+    [6^5] 7776
+    [7^5] 16807
+    [8^5] 32768
+    [9^5] 59049
+    '''
+    MAX_DIGIT = 6 * (9 ** 5)
+    result = 0
+    for i in range(MAX_DIGIT, 1, -1):
+        digits = list(map(int, str(i)))
+        total = 0
+        for j in digits:
+            total += j ** 5
+        if total == i:
+            result += i
+    print('[30]: ', result)
+
+
+'''
+Problem 31
+In England the currency is made up of pound, £, and pence, p,
+and there are eight coins in general circulation:
+1p, 2p, 5p, 10p, 20p, 50p, £1 (100p) and £2 (200p).
+It is possible to make £2 in the following way:
+    1×£1 + 1×50p + 2×20p + 1×5p + 1×2p + 3×1p
+How many different ways can £2 be made using any number of coins?
+'''
+
+
+def p31():
+    total = 0
+    for c1 in range(0, 201):  # 1
+        for c2 in range(0, 201, 2):  # 2
+            if c1 + c2 > 200:
+                break
+            for c3 in range(0, 201, 5):  # 5
+                if c1 + c2 + c3 > 200:
+                    break
+                for c4 in range(0, 201, 10):  # 10
+                    if c1 + c2 + c3 + c4 > 200:
+                        break
+                    for c5 in range(0, 201, 20):  # 20
+                        if c1 + c2 + c3 + c4 + c5 > 200:
+                            break
+                        for c6 in range(0, 201, 50):  # 50
+                            if c1 + c2 + c3 + c4 + c5 + c6 > 200:
+                                break
+                            for c7 in range(0, 201, 100):  # 100
+                                if c1 + c2 + c3 + c4 + c5 + c6 + c7 > 200:
+                                    break
+                                for c8 in range(0, 201, 200):  # 200
+                                    if c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 > 200:
+                                        break
+                                    if c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8 == 200:
+                                        print(c1, c2, c3, c4, c5, c6, c7, c8)
+                                        total += 1
+    print(total)
+
+
+'''
+Problem 32
+We shall say that an n-digit number is pandigital
+if it makes use of all the digits 1 to n exactly once;
+for example, the 5-digit number, 15234, is 1 through 5 pandigital.
+The product 7254 is unusual, as the identity, 39 × 186 = 7254,
+containing multiplicand, multiplier, and product is 1 through 9 pandigital.
+Find the sum of all products whose multiplicand/multiplier/product identity
+can be written as a 1 through 9 pandigital.
+HINT: Some products can be obtained in
+      more than one way so be sure to only include it once in your sum.
+'''
+
+
+def is_pandigital(n, s=9):
+    n = str(n)
+    # print('1234567890'[:9])
+    # print(not '1234567890'[:9].strip('123456789'))
+    return len(n) == s and not '1234567890'[:s].strip(n)
+
+
+def p32():
+    '''
+    1 through 9
+        O * OOOO = OOOO
+        OO * OOO = OOOO
+
+    4 * 1738 = 6952
+    4 * 1963 = 7852
+    12 * 483 = 5796
+    18 * 297 = 5346
+    27 * 198 = 5346  # not add
+    28 * 157 = 4396
+    39 * 186 = 7254
+    42 * 138 = 5796  # not add
+    48 * 159 = 7632
+    '''
+    total = set()
+    for i in range(1, 10):
+        for j in range(1000, 10000):
+            if is_pandigital(str(i) + str(j) + str(i * j)):
+                total.add(i * j)
+
+    for i in range(10, 101):
+        for j in range(100, 1000):
+            if is_pandigital(str(i) + str(j) + str(i * j)):
+                total.add(i * j)
+
+    print('[32]: ', sum(total))
+
+
+'''
+Problem 33
+The fraction 49/98 is a curious fraction,
+as an inexperienced mathematician in attempting to simplify it
+may incorrectly believe that 49/98 = 4/8,
+which is correct, is obtained by cancelling the 9s.
+We shall consider fractions like, 30/50 = 3/5, to be trivial examples.
+There are exactly four non-trivial examples of this type of fraction,
+less than one in value, and containing two digits in the numerator and denominator.
+If the product of these four fractions is given in its lowest common terms,
+find the value of the denominator.
+'''
+
+
+def p33():
+    d = 1
+    for i in range(10, 100):
+        for j in range(i + 1, 100):
+            if i % 10 == j // 10:
+                if j % 10 == 0:
+                    continue
+                if i / j == ((i // 10) / (j % 10)):
+                    print('%d / %d' % (i, j))
+                    d *= (j / i)
+    print('[33]: ', d)
+
+
+'''
+Problem 34
+145 is a curious number, as 1! + 4! + 5! = 1 + 24 + 120 = 145.
+Find the sum of all numbers which are equal to the sum of the factorial of their digits.
+Note: as 1! = 1 and 2! = 2 are not sums they are not included.
+'''
+
+
+def p34():
+    # [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+    retval = []
+    factorials = [1] * 1
+    for i in range(1, 10):
+        factorials.append(factorial(i))
+
+    for i in range(2177280, 2, -1):
+        nums = list(map(int, str(i)))
+        total = 0
+        for num in nums:
+            total += factorials[num]
+        if i == total:
+            retval.append(i)
+
+    print(sum(retval))
+
+
+'''
+Problem 35
+The number, 197, is called a circular prime
+because all rotations of the digits: 197, 971, and 719, are themselves prime.
+There are thirteen such primes below 100: 2, 3, 5, 7, 11, 13, 17, 31, 37, 71, 73, 79, and 97.
+How many circular primes are there below one million?
+'''
+
+
+def is_circular_prime(a):
+    n = 1
+    while (1):
+        temp = []
+        div, mod = divmod(a, pow(10, n))
+        if div == 0:
+            return True
+        temp.append(str(mod))
+        temp.append(str(div))
+        c_prime = int(''.join(temp))
+        if is_prime(c_prime) is False:
+            return False
+        n += 1
+    return True
+
+
+def p35():
+    ret = []
+    primes = prime_sieve(1000000)
+    for prime in primes:
+        if is_circular_prime(prime):
+            ret.append(prime)
+    print(len(ret))
