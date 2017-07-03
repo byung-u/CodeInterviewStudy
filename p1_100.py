@@ -1487,7 +1487,7 @@ How many circular primes are there below one million?
 
 def is_circular_prime(a):
     n = 1
-    while (1):
+    while(1):
         temp = []
         div, mod = divmod(a, pow(10, n))
         if div == 0:
@@ -1568,3 +1568,63 @@ By concatenating each product we get the 1 to 9 pandigital, 192384576. We will c
 The same can be achieved by starting with 9 and multiplying by 1, 2, 3, 4, and 5, giving the pandigital, 918273645, which is the concatenated product of 9 and (1,2,3,4,5).
 What is the largest 1 to 9 pandigital 9-digit number that can be formed as the concatenated product of an integer with (1,2, ... , n) where n > 1?
 '''
+
+
+def p38():
+    ret = []
+    for i in range(5678, 9876):
+        if is_pandigital(str(i) + str(2 * i)):
+            ret.append(str(i) + str(2 * i))
+    print('[38]: ', max(ret))
+
+
+'''
+Problem 39
+If p is the perimeter of a right angle triangle with integral length sides, {a,b,c}, there are exactly three solutions for p = 120.
+{20,48,52}, {24,45,51}, {30,40,50}
+For which value of p ≤ 1000, is the number of solutions maximised?
+'''
+
+
+def p39():
+    # http://mathworld.wolfram.com/PythagoreanTriple.html
+    ret = []
+    for a in range(3, 500):
+        for b in range(a + 1, 500):
+            square_a = a * a
+            square_b = b * b
+            c = math.sqrt(square_a + square_b)
+            if c.is_integer() is False:
+                continue
+            if a + b + c > 1000:
+                break
+            if square_a + square_b == c * c:
+                ret.append(sum([a, b, c]))
+    freqs = {}
+    for r in ret:
+        freqs[r] = freqs.get(r, 0) + 1
+    print('[39]: ', max(freqs, key=freqs.get))
+
+
+
+'''
+Problem 40
+An irrational decimal fraction is created by concatenating the positive integers:
+0.123456789101112131415161718192021...
+It can be seen that the 12th digit of the fractional part is 1.
+If dn represents the nth digit of the fractional part, find the value of the following expression.
+d1 × d10 × d100 × d1000 × d10000 × d100000 × d1000000
+'''
+
+
+def p40():
+    arr_d = [1, 10, 100, 1000, 10000, 100000, 1000000]
+    champ = []
+    ret = 1
+    for i in range(1, 300000):
+        champ.append(i)
+    champernowne = ''.join(map(str, champ))
+    for d in arr_d:
+        ret *= int(champernowne[d-1])
+    print('[40]: ', ret)
+
