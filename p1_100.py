@@ -1473,7 +1473,7 @@ def p34():
         if i == total:
             retval.append(i)
 
-    print(sum(retval))
+    print('[34]: ', sum(retval))
 
 
 '''
@@ -1507,4 +1507,64 @@ def p35():
     for prime in primes:
         if is_circular_prime(prime):
             ret.append(prime)
-    print(len(ret))
+    print('[35]: ', len(ret))
+
+
+'''
+Problem 36
+The decimal number, 585 = 1001001001(2) (binary), is palindromic in both bases.
+Find the sum of all numbers, less than one million, which are palindromic in base 10 and base 2.
+(Please note that the palindromic number, in either base, may not include leading zeros.)
+'''
+
+
+def p36():
+    ret = []
+    for i in range(1000001, 0, -1):
+        if is_palindromic(str(i)) and is_palindromic((str(bin(i))[2:])):
+            ret.append(i)
+    print('[36]: ', sum(ret))
+
+
+'''
+Problem 37
+The number 3797 has an interesting property. Being prime itself, it is possible to continuously remove digits from left to right, and remain prime at each stage: 3797, 797, 97, and 7. Similarly we can work from right to left: 3797, 379, 37, and 3.
+Find the sum of the only eleven primes that are both truncatable from left to right and right to left.
+NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
+'''
+
+
+def is_truncable_prime(prime):
+    n = 1
+    while (1):
+        temp = []
+        div, mod = divmod(prime, pow(10, n))
+        if div == 0:
+            return True
+        if is_prime(div) is False:
+            return False
+        if is_prime(mod) is False:
+            return False
+        n += 1
+    return True
+
+
+def p37():
+    ret = []
+    primes = prime_sieve(1000000)
+    for prime in primes[4:]:  # 2, 3, 5, 7 not considered
+       if (is_truncable_prime(prime)):
+           ret.append(prime)
+    print('[37]: ', sum(ret))
+
+
+'''
+Problem 38
+Take the number 192 and multiply it by each of 1, 2, and 3:
+192 × 1 = 192
+192 × 2 = 384
+192 × 3 = 576
+By concatenating each product we get the 1 to 9 pandigital, 192384576. We will call 192384576 the concatenated product of 192 and (1,2,3)
+The same can be achieved by starting with 9 and multiplying by 1, 2, 3, 4, and 5, giving the pandigital, 918273645, which is the concatenated product of 9 and (1,2,3,4,5).
+What is the largest 1 to 9 pandigital 9-digit number that can be formed as the concatenated product of an integer with (1,2, ... , n) where n > 1?
+'''
