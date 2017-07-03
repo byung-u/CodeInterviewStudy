@@ -8,7 +8,7 @@ from functools import reduce
 
 from util import (fib, is_palindromic, prime_sieve,
                   prime_factors, triangle_number, factorial,
-                  factors)
+                  factors, is_prime)
 
 
 '''
@@ -1040,4 +1040,249 @@ A unit fraction contains 1 in the numerator. The decimal representation of the u
 
 Where 0.1(6) means 0.166666..., and has a 1-digit recurring cycle. It can be seen that 1/7 has a 6-digit recurring cycle.
 Find the value of d < 1000 for which 1/d contains the longest recurring cycle in its decimal fraction part.
+
+
+n  1/n   Before / Repeating part                       F U
+------------------------------------------------------------
+1  1/1    1.      / 0...                               0 1
+2  1/2*   0.5     / 0...                               1 1
+3  1/3*   0.      / 3...                               0 1
+4  1/4    0.25    / 0...                               2 1
+5  1/5*   0.2     / 0...                               1 1
+6  1/6    0.1     / 6...                               1 1
+7  1/7*   0.      / 142857...                          0 6
+8  1/8    0.125   / 0...                               3 1
+9  1/9    0.      / 1...                               0 1
+10 1/10   0.1     / 0...                               1 1
+11 1/11*  0.      / 09...                              0 2
+12 1/12   0.08    / 3...                               2 1
+13 1/13*  0.      / 076923...                          0 6
+14 1/14   0.0     / 714285...                          1 6
+15 1/15   0.0     / 6...                               1 1
+16 1/16   0.0625  / 0...                               4 1
+17 1/17*  0.      / 0588235294117647...                0 16
+18 1/18   0.0     / 5...                               1 1
+19 1/19*  0.      / 052631578947368421...              0 18
+20 1/20   0.05    / 0...                               2 1
+21 1/21   0.      / 047619...                          0 6
+22 1/22   0.0     / 45...                              1 2
+23 1/23*  0.      / 0434782608695652173913...          0 22
+24 1/24   0.041   / 6...                               3 1
+25 1/25   0.04    / 0...                               2 1
+26 1/26   0.      / 0384615...                         0 7
+27 1/27   0.      / 037...                             0 3
+28 1/28   0.03    / 571428...                          2 6
+29 1/29*  0.      / 0344827586206896551724137931...    0 28
+30 1/30   0.0     / 3...                               1 1
+31 1/31*  0.      / 032258064516129032258064516129...  0 30
+32 1/32*  0.03125 / 0...                               5 1
+
+60 1/60   0.01    / 6...                               2 1
+64 1/64   0.015625/ 0...                               6 1
+360 1/360 0.002   / 7...                               3 1
+
+
+http://mathforum.org/library/drmath/view/51549.html
+
+    2) Tails can only grow to a maximum length equal to a prime number minus one.
+
 '''
+
+
+def p26():
+    possible_list = prime_sieve(1001)[::-1]
+    for d in possible_list:
+        period = 1
+        while pow(10, period, d) != 1:  # prime number minus one
+            period += 1
+        if d -1 == period:
+            break
+    print('[26]: ', d)
+
+
+'''
+Problem 27
+Euler discovered the remarkable quadratic formula:
+    n^2 + n + 41
+It turns out that the formula will produce
+40 primes for the consecutive integer values 0~39.
+However, when n = 40, 40^2 + 40 + 41 = 40(40 + 1) + 41 is divisible by 41,
+and certainly when n = 41, 41^2 + 41 + 41 is clearly divisible by 41.
+The incredible formula n^2 - 79n + 1601 was discovered,
+which produces 80 primes for the consecutive values 0~79.
+The product of the coefficients, −79 and 1601, is −126479.
+Considering quadratics of the form:
+
+        n^2 + an + b,
+
+where |a| < 1000 and |b| <= 1000 where |n| is the modulus/absolute value of n
+e.g. |11| = 11 and |-4| = 4
+
+Find the product of the coefficients, a and b,
+for the quadratic expression that produces the maximum number of primes
+for consecutive values of n, starting with n = 0.
+'''
+
+def quadratic_formula(a, b):
+    n = 0
+    while(1):
+        quad = (n ** 2) + (a * n) + b
+        ret =  is_prime(quad)
+        if ret is False:
+            return n
+        n += 1
+    return 0
+
+
+def p27():
+    primes= prime_sieve(1000)
+    consecutive = 0
+    max_a, max_b = 0, 0
+    for a in range(-999, 1000):
+        for b in primes:
+            consecutive_values = quadratic_formula(a, b)
+            if consecutive < consecutive_values:
+                consecutive = consecutive_values
+                max_a = a
+                max_b = b
+                print(consecutive, a, b)
+
+            consecutive_values = quadratic_formula(a, -1 * b)
+            if consecutive < consecutive_values:
+                consecutive = consecutive_values
+                max_a = a
+                max_b = b
+                print(consecutive, a, -1 * b)
+
+    print('[27]: ', max_a * max_b)
+
+
+def p27_great():
+    nmax = 0
+    for b in prime_sieve(1000):
+        for a in range(-b + 2, 0, 2):  # use Lou-John’s expression template
+            n = 1
+            while(is_prime(n * n + a * n + b)):
+                n += 1
+            if n > nmax:
+                nmax, p = n, (a, b)
+    print(nmax, p[0] * p[1])
+
+
+'''
+Problem 28
+Starting with the number 1 and moving to the right in a clockwise direction a 5 by 5 spiral is formed as follows:
+21 22 23 24 25
+20  7  8  9 10
+19  6  1  2 11
+18  5  4  3 12
+17 16 15 14 13
+It can be verified that the sum of the numbers on the diagonals is 101.
+What is the sum of the numbers on the diagonals in a 1001 by 1001 spiral formed in the same way?
+'''
+
+LEFT = 0
+DOWN = 1
+RIGHT = 2
+UP = 3
+VAL = 31  # n by n
+
+# FIXME : max 31 x 31
+def fill_matrix(matrix, x, y, value, walk, gap, direct):
+
+    matrix[x][y] = value
+    if x == VAL - 1 and y == VAL - 1:
+        return matrix
+
+    value += 1
+    if direct == RIGHT:
+        if walk == gap:
+            return fill_matrix(matrix, x, y - 1, value, 1, gap, DOWN)
+        else:
+            walk += 1
+            return fill_matrix(matrix, x + 1, y, value, walk, gap, RIGHT)
+    elif direct == DOWN:
+        if walk == gap:
+            gap += 1
+            return fill_matrix(matrix, x - 1, y, value, 1, gap, LEFT)
+        else:
+            walk += 1
+            return fill_matrix(matrix, x, y - 1, value, walk, gap, DOWN)
+    elif direct == LEFT:
+        if walk == gap:
+            return fill_matrix(matrix, x, y + 1, value, 1, gap, UP)
+        else:
+            walk += 1
+            return fill_matrix(matrix, x - 1, y, value, walk, gap, LEFT)
+    elif direct == UP:
+        if walk == gap:
+            gap += 1
+            return fill_matrix(matrix, x + 1, y, value, 1, gap, RIGHT)
+        else:
+            walk += 1
+            return fill_matrix(matrix, x, y + 1, value, walk, gap, UP)
+
+
+def test_28():
+    center_x = VAL // 2
+    center_y = VAL // 2
+    matrix = np.zeros((VAL, VAL))
+    matrix[center_x][center_y] = 1
+    ret = fill_matrix(matrix, center_x+1, center_y, 2, 1, 1, RIGHT)
+    print(ret)
+
+
+def get_diagoanl_sum(n, max_n, add_n):
+    term = 8
+    i = 1
+    d_sum = n
+    while(n < max_n):
+        n =  n + (i * term) + add_n
+        d_sum += n
+        i += 1
+    return d_sum
+
+
+def p28():
+    matrix = 1001
+    total = 1
+
+    # left down
+    ld_max = matrix * matrix - (3 * (matrix -1))
+    total += get_diagoanl_sum(3, ld_max, 2)
+
+    # right up
+    ru_max = matrix * matrix - (1 * (matrix -1))
+    total += get_diagoanl_sum(7, ru_max, 6)
+
+    # right down
+    rd_max = matrix * matrix
+    total += get_diagoanl_sum(9, rd_max, 8)
+
+    # left up
+    lu_max = matrix * matrix - (2 * (matrix -1))
+    total += get_diagoanl_sum(5, lu_max, 4)
+
+    print('[28]: ', total)
+
+
+'''
+Problem 29
+Consider all integer combinations of ab for 2 ≤ a ≤ 5 and 2 ≤ b ≤ 5:
+2^2=4, 2^3=8, 2^4=16, 2^5=32
+3^2=9, 3^3=27, 3^4=81, 3^5=243
+4^2=16, 4^3=64, 4^4=256, 4^5=1024
+5^2=25, 5^3=125, 5^4=625, 5^5=3125
+If they are then placed in numerical order, with any repeats removed,
+we get the following sequence of 15 distinct terms:
+4, 8, 9, 16, 25, 27, 32, 64, 81, 125, 243, 256, 625, 1024, 3125
+How many distinct terms are in the sequence generated
+by ab for 2 ≤ a ≤ 100 and 2 ≤ b ≤ 100?
+'''
+def p29():
+    seq = set()
+    for a in range(2, 100 + 1):
+        for b in range(2, 100 + 1):
+            comb = a ** b
+            seq.add(comb)
+    print('[29]: ', len(seq))
