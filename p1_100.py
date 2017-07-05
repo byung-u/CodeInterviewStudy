@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numpy as np
-import math
 import string
-from itertools import groupby, permutations
+from itertools import groupby, count, permutations, combinations
+from math import sqrt, floor, ceil, log10, factorial
 from functools import reduce
 
 from util import (fib, is_palindromic, prime_sieve,
-                  prime_factors, triangle_number, factorial,
-                  factors, is_prime)
+                  prime_factors, triangle_number,
+                  factors, is_prime, pentagonal_number,
+                  is_pentagonal, is_hexagonal)
 
 
 '''
@@ -104,7 +105,7 @@ def p4():  # O(1)
     for i in range(limit, 1, -1):
         if is_palindromic(str(i)) is False:
             continue
-        for j in range(int(math.sqrt(i)), 0, -1):
+        for j in range(int(sqrt(i)), 0, -1):
             if i % j == 0:
                 break
         if j // 1000 == 0 and (i / j) // 1000 == 0:
@@ -223,7 +224,7 @@ def p7():
     sieve[0] = False
     sieve[1] = False
 
-    for i in range(2, int(math.sqrt(sieveSize)) + 1):
+    for i in range(2, int(sqrt(sieveSize)) + 1):
         pointer = i * 2
         while pointer < sieveSize:
             sieve[pointer] = False
@@ -675,8 +676,8 @@ def int_to_english(n):
     english_parts = []
     ones = n % 10
     tens = n % 100
-    hundreds = math.floor(n / 100) % 10
-    thousands = math.floor(n / 1000)
+    hundreds = floor(n / 100) % 10
+    thousands = floor(n / 1000)
 
     if thousands:
         english_parts.append(int_to_english(thousands))
@@ -913,7 +914,7 @@ as the sum of two abundant numbers.
 
 def is_abundant(n):
     results = set()
-    for i in range(1, int(math.sqrt(n)) + 1):
+    for i in range(1, int(sqrt(n)) + 1):
         if n % i == 0:
             results.add(i)
             results.add(n // i)
@@ -1010,8 +1011,8 @@ def fib_number_of_digits(n):
     if n == 1:
         return 1
 
-    d = (n * math.log10(PHI)) - (math.log10(5) / 2)
-    return math.ceil(d)
+    d = (n * log10(PHI)) - (log10(5) / 2)
+    return ceil(d)
 
 
 def p25():
@@ -1528,7 +1529,10 @@ def p36():
 
 '''
 Problem 37
-The number 3797 has an interesting property. Being prime itself, it is possible to continuously remove digits from left to right, and remain prime at each stage: 3797, 797, 97, and 7. Similarly we can work from right to left: 3797, 379, 37, and 3.
+The number 3797 has an interesting property.
+Being prime itself, it is possible to continuously remove digits from left to right,
+and remain prime at each stage: 3797, 797, 97, and 7.
+Similarly we can work from right to left: 3797, 379, 37, and 3.
 Find the sum of the only eleven primes that are both truncatable from left to right and right to left.
 NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
 '''
@@ -1537,7 +1541,6 @@ NOTE: 2, 3, 5, and 7 are not considered to be truncatable primes.
 def is_truncable_prime(prime):
     n = 1
     while (1):
-        temp = []
         div, mod = divmod(prime, pow(10, n))
         if div == 0:
             return True
@@ -1553,8 +1556,8 @@ def p37():
     ret = []
     primes = prime_sieve(1000000)
     for prime in primes[4:]:  # 2, 3, 5, 7 not considered
-       if (is_truncable_prime(prime)):
-           ret.append(prime)
+        if (is_truncable_prime(prime)):
+            ret.append(prime)
     print('[37]: ', sum(ret))
 
 
@@ -1593,7 +1596,7 @@ def p39():
         for b in range(a + 1, 500):
             square_a = a * a
             square_b = b * b
-            c = math.sqrt(square_a + square_b)
+            c = sqrt(square_a + square_b)
             if c.is_integer() is False:
                 continue
             if a + b + c > 1000:
@@ -1604,7 +1607,6 @@ def p39():
     for r in ret:
         freqs[r] = freqs.get(r, 0) + 1
     print('[39]: ', max(freqs, key=freqs.get))
-
 
 
 '''
@@ -1625,6 +1627,720 @@ def p40():
         champ.append(i)
     champernowne = ''.join(map(str, champ))
     for d in arr_d:
-        ret *= int(champernowne[d-1])
+        ret *= int(champernowne[d - 1])
     print('[40]: ', ret)
 
+
+'''
+Problem 41
+We shall say that an n-digit number is pandigital
+if it makes use of all the digits 1 to n exactly once.
+For example, 2143 is a 4-digit pandigital and is also prime.
+What is the largest n-digit pandigital prime that exists?
+'''
+
+
+def p41():
+    ret = []
+    pandigit = 123456789
+    for n in range(9, 1, -1):
+        for p in permutations(str(pandigit), n):
+            num = int(''.join(p))
+            if is_prime(num):
+                ret.append(num)
+        pandigit //= 10
+    print('[41]: ', max(ret))
+
+
+'''
+Problem 42
+The nth term of the sequence of triangle numbers is given by, tn = ½n(n+1);
+so the first ten triangle numbers are:
+    1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...
+By converting each letter in a word to a number corresponding to its alphabetical position and
+adding these values we form a word value.
+For example, the word value for SKY is 19 + 11 + 25 = 55 = t10.
+If the word value is a triangle number then we shall call the word a triangle word.
+Using words.txt (right click and 'Save Link/Target As...'),
+a 16K text file containing nearly two-thousand common English words, how many are triangle words?
+'''
+
+
+def get_triangle_num_list():
+    ret = []
+    for i in range(50):
+        ret.append(triangle_number(i))
+    return ret
+
+
+def p42():
+    total = 0
+    position_dict = get_alphabet_position_dict()
+    triangle_num_list = get_triangle_num_list()
+
+    with open('words.txt') as f:
+        for line in f:
+            names = line.replace('"', '').replace('\n', '').split(',')
+    for name in names:
+        val = get_name_worth(position_dict, name)
+        if val in triangle_num_list:
+            total += 1
+    print('[42]: ', total)
+
+
+'''
+Problem 43
+The number, 1406357289, is a 0 to 9 pandigital number because
+it is made up of each of the digits 0 to 9 in some order,
+but it also has a rather interesting sub-string divisibility property.
+Let d1 be the 1st digit, d2 be the 2nd digit, and so on. In this way, we note the following:
+d2d3d4=406 is divisible by 2
+d3d4d5=063 is divisible by 3
+d4d5d6=635 is divisible by 5
+d5d6d7=357 is divisible by 7
+d6d7d8=572 is divisible by 11
+d7d8d9=728 is divisible by 13
+d8d9d10=289 is divisible by 17
+Find the sum of all 0 to 9 pandigital numbers with this property.
+'''
+
+
+def p43():
+    ret = []
+    pandigit = 1234567890
+    perms = permutations(str(pandigit), 10)
+    for p in perms:
+        num = ''.join(p)
+        if ( int(num[1:4]) % 2 == 0 and
+             int(num[2:5]) % 3 == 0 and
+             int(num[3:6]) % 5 == 0 and
+             int(num[4:7]) % 7 == 0 and
+             int(num[5:8]) % 11 == 0 and
+             int(num[6:9]) % 13 == 0 and
+             int(num[7:10]) % 17 == 0):
+            ret.append(int(num))
+    print('[43]: ', sum(ret))
+
+
+'''
+Problem 44
+Pentagonal numbers are generated by the formula,
+Pn=n(3n−1)/2. The first ten pentagonal numbers are:
+1, 5, 12, 22, 35, 51, 70, 92, 117, 145, ...
+It can be seen that P4 + P7 = 22 + 70 = 92 = P8. However, their difference, 70 − 22 = 48, is not pentagonal.
+Find the pair of pentagonal numbers, Pj and Pk,
+for which their sum and difference are pentagonal and D = |Pk − Pj| is minimised; what is the value of D?
+'''
+
+
+def p44_great():
+    ''' Pn=n(3n-1)/2 Find Pn1,Pn2,Pn3,Pn4 with Pn1+Pn2 = Pn3 and Pn1-Pn2 == Pn4
+        From this follows:
+            Pn3 > Pn1 > Pn2,
+            Pn1 > Pn4,
+            so use Pn3 to build a set of Pn's.
+        By adding
+            Pn1+Pn2 = Pn3 and
+          + Pn1-Pn2 = Pn4
+         => 2Pn1 = Pn3 + Pn4
+
+         So Pn1 = (Pn3 + Pn4)/2
+            Pn2 = Pn3 - Pn1
+    '''
+    penta_iter = (n * (3 * n - 1) / 2 for n in count(1))
+    penta_set = set()
+    for Pn3 in penta_iter:
+        penta_set.add(Pn3)
+        for Pn4 in (x for x in penta_set if x < Pn3):
+            Pn1 = 0.5 * (Pn3 + Pn4)
+            if Pn1 in penta_set:
+                Pn2 = Pn3 - Pn1
+                if Pn2 in penta_set:
+                    return abs(int(Pn1 - Pn2))
+
+
+def p44():  # worst
+    minimised = 0
+    pentagonals = []
+    for i in range(1, 2500):
+        pentagonals.append(pentagonal_number(i))
+
+    for i in range(1, len(pentagonals)):
+        for j in range(i + 1, len(pentagonals)):
+            diff_penta = abs(pentagonals[i] - pentagonals[j])
+            if diff_penta not in pentagonals:
+                continue
+            if (pentagonals[i] + pentagonals[j]) not in pentagonals:
+                continue
+            print(pentagonals[i], pentagonals[j])
+            if minimised > diff_penta or minimised == 0:
+                minimised = diff_penta
+                ret = (pentagonals[i], pentagonals[j])
+    print('[44]: ', abs(ret[0] - ret[1]))
+
+
+'''
+Problem 45
+Triangle, pentagonal, and hexagonal numbers are generated by the following formulae:
+Triangle
+ 
+Tn=n(n+1)/2
+ 
+1, 3, 6, 10, 15, ...
+Pentagonal
+ 
+Pn=n(3n−1)/2
+ 
+1, 5, 12, 22, 35, ...
+Hexagonal
+ 
+Hn=n(2n−1)
+ 
+1, 6, 15, 28, 45, ...
+It can be verified that T285 = P165 = H143 = 40755.
+Find the next triangle number that is also pentagonal and hexagonal.
+'''
+
+
+def p45():
+    n = 286
+    while (1):
+        tn = triangle_number(n)
+        if is_pentagonal(tn) and is_hexagonal(tn):
+            print('[45]: ', tn)
+            break
+        n += 1
+
+
+'''
+Problem 46
+It was proposed by Christian Goldbach that every odd composite number can be written as the sum of a prime and twice a square.
+9 = 7 + 2×1^2
+15 = 7 + 2×2^2
+21 = 3 + 2×3^2
+25 = 7 + 2×3^2
+27 = 19 + 2×2^2
+33 = 31 + 2×1^2
+It turns out that the conjecture was false.
+What is the smallest odd composite that cannot be written as the sum of a prime and twice a square?
+'''
+
+
+def p46():
+    for i in filter(lambda x: x % 2 == 1, count(9, 1)):
+        if is_prime(i):
+            continue
+        for j in range(i - 1, -1, -1):
+            if is_prime(j):
+                if sqrt((i - j) / 2).is_integer():
+                    break
+        if j == 0:
+            print('[46]: ', i)
+            return
+
+
+'''
+Problem 47
+The first two consecutive numbers to have two distinct prime factors are:
+14 = 2 × 7
+15 = 3 × 5
+The first three consecutive numbers to have three distinct prime factors are:
+644 = 2² × 7 × 23
+645 = 3 × 5 × 43
+646 = 2 × 17 × 19.
+Find the first four consecutive integers to have four distinct prime factors each.
+What is the first of these numbers?
+'''
+
+
+def prime_factors_not_dup(n):
+    i = 2
+    factors = set()
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.add(i)
+    if n > 1:
+        factors.add(n)
+    return factors
+
+
+def p47():
+    for i in count(1000, 1):
+        if len(prime_factors_not_dup(i)) == 4:
+            if len(prime_factors_not_dup(i + 1)) == 4:
+                if len(prime_factors_not_dup(i + 2)) == 4:
+                    if len(prime_factors_not_dup(i + 3)) == 4:
+                        print('[47]: ', i)
+                        return
+                    else:
+                        i += 4
+                        continue
+                else:
+                    i += 3
+                    continue
+            else:
+                i += 2
+                continue
+
+
+'''
+Problem 48
+The series, 1^1 + 2^2 + 3^3 + ... + 10^10 = 10405071317.
+Find the last ten digits of the series, 1^1 + 2^2 + 3^3 + ... + 1000^1000.
+'''
+
+
+def pow_self(base, exponent):
+    if exponent == 0:
+        return 1
+    elif exponent < 0:
+        return 1 / pow_self(base, -exponent)
+    elif exponent % 2 == 0:
+        half_pow = pow_self(base, exponent // 2)
+        return half_pow * half_pow
+    else:
+        return base * pow_self(base, exponent - 1)
+
+
+def p48():
+    # https://stackoverflow.com/questions/2882706/how-can-i-write-a-power-function-myself
+    print(str(sum([pow_self(x, x) for x in range(1, 1001)]))[-10:])
+
+
+'''
+Problem 49
+The arithmetic sequence, 1487, 4817, 8147,
+in which each of the terms increases by 3330, is unusual in two ways:
+(i) each of the three terms are prime, and,
+(ii) each of the 4-digit numbers are permutations of one another.
+There are no arithmetic sequences made up of three 1-, 2-, or 3-digit primes,
+exhibiting this property, but there is one other 4-digit increasing sequence.
+What 12-digit number do you form by concatenating the three terms in this sequence?
+'''
+
+
+def prime_sieve_p49(sieveSize):
+    # Returns a list of prime numbers calculated using
+    # the Sieve of Eratosthenes algorithm.
+
+    sieve = [True] * sieveSize
+    sieve[0] = False  # zero and one are not prime numbers
+    sieve[1] = False
+
+    # create the sieve
+    for i in range(2, int(sqrt(sieveSize)) + 1):
+        pointer = i * 2
+        while pointer < sieveSize:
+            sieve[pointer] = False
+            pointer += i
+
+    for i in range(0, 1000 + 1):
+        sieve[i] = False
+    # compile the list of primes
+    primes = []
+    for i in range(sieveSize):
+        if sieve[i] is True:
+            primes.append(i)
+
+    return primes
+
+
+def p49():
+    primes = prime_sieve_p49(9999)
+    d = []
+    for prime in primes:
+        perms = list(permutations(str(prime)))
+        perm_set = set()
+        for perm in perms:
+            num = int(''.join(perm))
+            if 999 < num < 10000:
+                if is_prime(num):
+                    perm_set.add(num)
+        if len(perm_set) < 3:
+            continue
+        p = list(perm_set)
+        for i in range(1, len(p) - 1):
+            diff1 = abs(p[i] - p[i - 1])
+            for j in range(i + 2, len(p)):
+                diff2 = abs(p[i] - p[j])
+                if diff1 == diff2:
+                    d.append(sorted([p[i], p[j], p[i - 1]]))
+    res_d = []
+    for check_d in d:
+        if check_d not in res_d:
+            res_d.append(check_d)
+    print(res_d)
+
+
+'''
+Problem 50
+The prime 41, can be written as the sum of six consecutive primes:
+41 = 2 + 3 + 5 + 7 + 11 + 13
+This is the longest sum of consecutive primes that adds to a prime below one-hundred.
+The longest sum of consecutive primes below one-thousand that adds to a prime, contains 21 terms, and is equal to 953.
+Which prime, below one-million, can be written as the sum of the most consecutive primes?
+'''
+
+
+def p50():
+    primes = prime_sieve(10000)
+    prime_len = len(primes)
+    sum_p = 0
+    max_sum_p = 0
+    max_term = 0
+    for i in range(0, prime_len):
+        term = 0
+        sum_p = primes[i]
+        for j in range(i + 1, prime_len):
+            term += 1
+            sum_p += primes[j]
+            if sum_p > 1000000:
+                continue
+            if is_prime(sum_p):
+                if max_term < term:
+                    max_term = term
+                    if max_sum_p < sum_p:
+                        max_sum_p = sum_p
+                        print([i], [max_term], max_sum_p)
+
+
+'''
+Problem 51
+By replacing the 1st digit of the 2-digit number *3,
+it turns out that six of the nine possible values: 13, 23, 43, 53, 73, and 83, are all prime.
+By replacing the 3rd and 4th digits of 56**3 with the same digit,
+this 5-digit number is the first example having seven primes among the ten generated numbers,
+yielding the family: 56003, 56113, 56333, 56443, 56663, 56773, and 56993. Consequently 56003,
+being the first member of this family, is the smallest prime with this property.
+Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit,
+is part of an eight prime value family.
+'''
+
+
+def check_prime_cnt(idx, prime_str, primes):
+    d = {}
+    p_found = []
+    for i in range(len(prime_str)):
+        if prime_str[i] == str(idx):
+            p_found.append(i)
+
+    comb = combinations(p_found, 2)
+    for c in comb:
+        cnt = 0
+        temp = list(map(str, prime_str))
+        for i in range(0, 10):
+            if i == 0:
+                if c[0] == 0 or c[1] == 0:
+                    continue
+            # if (9 - i) + cnt < 8:
+                # break
+            temp[c[0]] = str(i)
+            temp[c[1]] = str(i)
+            if int(''.join(temp)) in primes:
+                cnt += 1
+                d[int(''.join(temp))] = cnt
+    if len(d) == 0:
+        return 0
+    if 5 < d[max(d, key=d.get)]:
+        print(prime_str, d[max(d, key=d.get)])
+    return d[max(d, key=d.get)]
+
+
+def check_prime(start, prime_str):
+    p_zero = []
+    for i in range(len(prime_str)):
+        if prime_str[i] == str(start):
+            p_zero.append(i)
+
+    comb = combinations(p_zero, 2)
+    for c in comb:
+        ret = []
+        cnt = 1
+        temp = list(map(str, prime_str))
+        for i in range(0, 10):
+            if i == 0:
+                if c[0] == 0 or c[1] == 0:
+                    continue
+            temp[c[0]] = str(i)
+            temp[c[1]] = str(i)
+            if is_prime(int(''.join(temp))):
+                cnt += 1
+                ret.append(int(''.join(temp)))
+        print(ret, len(ret))
+
+
+def p51():
+    # a = 205201
+    # check_prime(1, str(a))
+    # return
+    all_primes = prime_sieve(10000000)
+    primes = []
+    for p in all_primes:
+        str_p = str(p)
+        if len(str_p) == len(set(str_p)):
+            continue
+        primes.append(p)
+
+    prime_len = len(primes)
+    for i in range(80132, prime_len):  # primes[5780] = 56693
+        prime_str = str(primes[i])
+        prime_zero_cnt = prime_str.count('0')
+        if prime_zero_cnt >= 2:
+            if check_prime_cnt(0, prime_str, primes) == 8:
+                print('[51]: ', primes[i])
+                return
+        prime_zero_cnt = prime_str.count('1')
+        if prime_zero_cnt >= 2:
+            if check_prime_cnt(1, prime_str, primes) == 8:
+                print('[51]: ', primes[i])
+                return
+
+        prime_zero_cnt = prime_str.count('2')
+        if prime_zero_cnt >= 2:
+            if check_prime_cnt(2, prime_str, primes) == 8:
+                print('[51]: ', primes[i])
+                return
+
+
+'''
+Problem 52
+It can be seen that the number, 125874, and its double, 251748, contain exactly the same digits, but in a different order.
+Find the smallest positive integer, x, such that 2x, 3x, 4x, 5x, and 6x, contain the same digits.
+'''
+
+
+def p52():
+    i = 125875
+    while(1):
+        str_i = str(i)
+        if len(str_i) != len(set(str_i)):
+            i += 1
+            continue
+        comp_num = sorted(str_i)
+        for j in range(2, 7):
+            if comp_num != sorted(str(i * j)):
+                break
+            else:
+                if j == 6:
+                    print('[52]: ', i)
+                    return
+        if(str_i[0] != '1'):  # MUST number start 1
+            i *= 5  # 2000 * 5 = 10000
+        else:
+            i += 1
+
+
+'''
+Problem 53
+There are exactly ten ways of selecting three from five, 12345:
+123, 124, 125, 134, 135, 145, 234, 235, 245, and 345
+In combinatorics, we use the notation, 5C3 = 10.
+In general,
+
+nCr = n!r!(n−r)!
+,where r ≤ n, n! = n×(n−1)×...×3×2×1, and 0! = 1.
+
+It is not until n = 23, that a value exceeds one-million: 23C10 = 1144066.
+How many, not necessarily distinct, values of  nCr, for 1 ≤ n ≤ 100, are greater than one-million?
+'''
+
+
+def p53():
+    ret = []
+    for r in range(1, 101):
+        for n in range(r, 101):
+            c = (factorial(n) / (factorial(r) * factorial(n - r)))
+            if c > 1000000:
+                ret.append(str(n) + str(r))
+    print('[53]: ', len(ret))
+
+
+'''
+Problem 54
+In the card game poker, a hand consists of five cards and are ranked,
+from lowest to highest, in the following way:
+
+    High Card: Highest value card.
+    One Pair: Two cards of the same value.
+    Two Pairs: Two different pairs.
+    Three of a Kind: Three cards of the same value.
+    Straight: All cards are consecutive values.
+    Flush: All cards of the same suit.
+    Full House: Three of a kind and a pair.
+    Four of a Kind: Four cards of the same value.
+    Straight Flush: All cards are consecutive values of same suit.
+    Royal Flush: Ten, Jack, Queen, King, Ace, in same suit.
+
+The cards are valued in the order:2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, King, Ace.
+If two players have the same ranked hands then the rank made up of the highest value wins;
+    for example, a pair of eights beats a pair of fives (see example 1 below).
+But if two ranks tie,
+    for example, both players have a pair of queens,
+    then highest cards in each hand are compared (see example 4 below);
+    if the highest cards tie then the next highest cards are compared, and so on.
+
+Consider the following five hands dealt to two players:
+
+Hand Player 1 Player 2 Winner
+1 5H 5C 6S 7S KDPair of Fives 2C 3S 8S 8D TDPair of Eights Player 2
+2 5D 8C 9S JS ACHighest card Ace 2C 5C 7D 8S QHHighest card Queen Player 1
+3 2D 9C AS AH ACThree Aces 3D 6D 7D TD QDFlush  with Diamonds Player 2
+4 4D 6S 9H QH QCPair of QueensHighest card Nine 3D 6D 7H QD QSPair of QueensHighest card Seven Player 1
+5 2H 2D 4C 4D 4SFull HouseWith Three Fours 3C 3D 3S 9S 9DFull Housewith Three Threes Player 1
+
+The file, poker.txt, contains one-thousand random hands dealt to two players.
+Each line of the file contains ten cards (separated by a single space):
+the first five are Player 1's cards and the last five are Player 2's cards.
+You can assume that all hands are valid (no invalid characters or repeated cards),
+each player's hand is in no specific order, and in each hand there is a clear winner.
+How many hands does Player 1 win?
+'''
+
+
+ROYAL_FLUSH = 110
+STRAIGHT_FLUSH = 109
+FOUR_OF_KIND = 108
+FULL_HOUSE = 107
+FLUSH = 106
+STRAIGHT = 105
+THREE_OF_KIND = 104
+TWO_PAIR = 103
+ONE_PAIR = 102
+
+
+def pocker_point(card):
+    # 스-다-하-클
+    nums = []
+    suit = []
+    for c in card:  # pocker.txt does not have 10
+        if c[0] == 'T':
+            nums.append(10)
+        elif c[0] == 'J':
+            nums.append(11)
+        elif c[0] == 'Q':
+            nums.append(12)
+        elif c[0] == 'K':
+            nums.append(13)
+        elif c[0] == 'A':
+            nums.append(14)
+        else:
+            nums.append(int(c[0]))
+        suit.append(c[1])
+    nums = sorted(nums)
+    suit = sorted(suit)
+    # print(nums, suit)
+    if nums == ['10', '11', '12', '13', '14'] and len(set(suit)) == 1:
+        return ROYAL_FLUSH, 14, 0  # Royal Flush
+    elif len(set(suit)) == 1:
+        if ( int(nums[0]) + 1 == int(nums[1]) and
+             int(nums[1]) + 1 == int(nums[2]) and
+             int(nums[2]) + 1 == int(nums[3]) and
+             int(nums[3]) + 1 == int(nums[4])):
+            return STRAIGHT_FLUSH, nums[4], nums[3]
+        else:
+            return FLUSH, max(nums), 0
+    elif ( nums[0] == nums[3] or
+           nums[1] == nums[4]):
+        return FOUR_OF_KIND, nums[2], 0
+    elif len(set(nums)) == 2:
+        d = {}
+        for n in nums:
+            d[n] = d.get(n, 0) + 1
+        return FULL_HOUSE, d[max(d, key=d.get)], d[min(d, key=d.get)]
+    elif ( int(nums[0]) + 1 == int(nums[1]) and
+           int(nums[1]) + 1 == int(nums[2]) and
+           int(nums[2]) + 1 == int(nums[3]) and
+           int(nums[3]) + 1 == int(nums[4])):
+        return STRAIGHT, nums[4], 0
+    elif ( nums[0] == nums[2] or
+           nums[1] == nums[3] or
+           nums[2] == nums[4]):
+        return THREE_OF_KIND, nums[2]
+    elif len(set(nums)) == 3:
+        return TWO_PAIR, nums[3], 0
+    elif len(set(nums)) == 4:
+        max_num = 0
+        if nums[0] == nums[1]:
+            max_num = nums[1]
+        elif nums[1] == nums[2]:
+            max_num = nums[2]
+        elif nums[2] == nums[3]:
+            max_num = nums[3]
+        elif nums[3] == nums[4]:
+            max_num = nums[4]
+        return ONE_PAIR, max_num, 0
+    else:
+        return nums[4], nums[4], 0
+
+
+def p54():
+    return
+    p1_win = 0
+    with open('pocker.txt') as f:
+        for line in f:
+            p = line.strip('\n').split(' ')
+            p1, max_p1, pp1 = pocker_point(p[:5])
+            p2, max_p2, pp2 = pocker_point(p[5:])
+            print(p1, p2, p[:5], p[5:])
+            if p1 > p2:
+                p1_win += 1
+            elif p1 == p2:
+                if max_p1 > max_p2:
+                    p1_win += 1
+                elif max_p1 == max_p2:
+                    if pp1 > pp2:
+                        p1_win += 1
+                    else:
+                        print(line)  # need compare h/d/c/s
+    print('[54]: ', p1_win)
+
+
+'''
+Problem 55
+If we take 47, reverse and add, 47 + 74 = 121, which is palindromic.
+Not all numbers produce palindromes so quickly. For example,
+349 + 943 = 1292,
+1292 + 2921 = 4213
+4213 + 3124 = 7337
+That is, 349 took three iterations to arrive at a palindrome.
+Although no one has proved it yet, it is thought that some numbers, like 196,
+never produce a palindrome.
+A number that never forms a palindrome through the reverse and add process is called a Lychrel number.
+
+Due to the theoretical nature of these numbers, and for the purpose of this problem,
+we shall assume that a number is Lychrel until proven otherwise.
+In addition you are given that for every number below ten-thousand,
+it will either
+    (i) become a palindrome in less than fifty iterations, or,
+    (ii) no one, with all the computing power that exists, has managed so far to map it to a palindrome.
+In fact, 10677 is the first number to be shown to require over fifty iterations before producing a palindrome:
+    4668731596684224866951378664 (53 iterations, 28-digits).
+Surprisingly, there are palindromic numbers that are themselves Lychrel numbers;
+the first example is 4994.
+How many Lychrel numbers are there below ten-thousand?
+NOTE: Wording was modified slightly on 24 April 2007 to emphasise the theoretical nature of Lychrel numbers.
+'''
+
+
+def check_lychrel(n):
+    print(n)
+    for i in range(1, 51):
+        n = n + int(str(n)[::-1])
+        print(n)
+
+
+def p55():
+    ret = []
+    # https://en.wikipedia.org/wiki/Lychrel_number
+    for i in range(196, 10001):
+        num = i
+        for j in range(1, 51):
+            num = num + int(str(num)[::-1])
+            if is_palindromic(num):
+                ret.append(i)
+                break
+    print(ret)
+    print(len(ret))
