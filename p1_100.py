@@ -2026,6 +2026,8 @@ def check_prime_cnt(idx, prime_str, primes):
     for i in range(len(prime_str)):
         if prime_str[i] == str(idx):
             p_found.append(i)
+    if p_found[-1] == len(prime_str) - 1:
+        return 0
 
     comb = combinations(p_found, 2)
     for c in comb:
@@ -2083,9 +2085,13 @@ def p51():
         if len(str_p) == len(set(str_p)):
             continue
         primes.append(p)
+    # for i in range(0, len(primes)):
+    #     if primes[i] == 3211613:
+            # print(i)
+    # return
 
     prime_len = len(primes)
-    for i in range(80132, prime_len):  # primes[5780] = 56693
+    for i in range(209007, prime_len):  # primes[5780] = 56693
         prime_str = str(primes[i])
         prime_zero_cnt = prime_str.count('0')
         if prime_zero_cnt >= 2:
@@ -2325,22 +2331,162 @@ NOTE: Wording was modified slightly on 24 April 2007 to emphasise the theoretica
 '''
 
 
-def check_lychrel(n):
-    print(n)
-    for i in range(1, 51):
-        n = n + int(str(n)[::-1])
-        print(n)
-
-
 def p55():
     ret = []
-    # https://en.wikipedia.org/wiki/Lychrel_number
-    for i in range(196, 10001):
+    for i in range(1, 10000):
         num = i
-        for j in range(1, 51):
+        for j in range(1, 50):
             num = num + int(str(num)[::-1])
-            if is_palindromic(num):
+            if is_palindromic(str(num)):
                 ret.append(i)
                 break
-    print(ret)
-    print(len(ret))
+    print('[55]: ', 10000 - (len(ret) + 1))
+
+
+'''
+Problem 56
+A googol (10^100) is a massive number: one followed by one-hundred zeros;
+100^100 is almost unimaginably large: one followed by two-hundred zeros.
+Despite their size, the sum of the digits in each number is only 1.
+Considering natural numbers of the form, a^b, where a, b < 100, what is the maximum digital sum?
+'''
+
+def p56():
+    for a in range(80, 100):
+        if a % 10 == 0:
+            continue
+        for b in range(80, 100):
+            c = a ** b
+            ret.append(sum(list(map(int, str(c)))))
+
+    print('[56]: ', max(ret))
+
+
+'''
+Problem 57
+It is possible to show that the square root of two can be expressed
+as an infinite continued fraction.
+√ 2 = 1 + 1/(2 + 1/(2 + 1/(2 + ... ))) = 1.414213...
+By expanding this for the first four iterations, we get:
+1 + 1/2 = 3/2 = 1.5
+1 + 1/(2 + 1/2) = 7/5 = 1.4
+1 + 1/(2 + 1/(2 + 1/2)) = 17/12 = 1.41666...
+1 + 1/(2 + 1/(2 + 1/(2 + 1/2))) = 41/29 = 1.41379...
+The next three expansions are 99/70, 239/169, and 577/408, but the eighth expansion, 1393/985, is the first example where the number of digits in the numerator exceeds the number of digits in the denominator.
+In the first one-thousand expansions, how many fractions contain a numerator with more digits than denominator?
+'''
+
+def p57():
+    cnt = 0
+    n = 1  # numerator
+    d = 2  # denominator
+    for i in range(2, 1001):
+        temp_n = n
+        n = d
+        d = (2 * d) + temp_n
+        res_n = n + d
+        if len(str(res_n)) != len(str(d)):
+            cnt += 1
+            print(res_n, d)
+    print('[57]: ', cnt)
+
+
+'''
+Problem 58
+Starting with 1 and spiralling anticlockwise in the following way,
+a square spiral with side length 7 is formed.
+
+37 36 35 34 33 32 31
+38 17 16 15 14 13 30
+39 18  5  4  3 12 29
+40 19  6  1  2 11 28
+41 20  7  8  9 10 27
+42 21 22 23 24 25 26
+43 44 45 46 47 48 49
+
+
+
+37 36 35 34 33 32 31
+38 17 16 15 14 13 30
+39 18  5  4  3 12 29
+40 19  6  1  2 11 28
+41 20  7  8  9 10 27
+42 21 22 23 24 25 26
+43 44 45 46 47 48 49
+
+It is interesting to note that the odd squares lie along the bottom right diagonal,
+but what is more interesting is that 8 out of the 13 numbers lying along both diagonals are prime;
+that is, a ratio of 8/13 ≈ 62%.
+If one complete new layer is wrapped around the spiral above,
+a square spiral with side length 9 will be formed.
+If this process is continued,
+what is the side length of the square spiral for which the ratio of primes along both diagonals
+first falls below 10%?
+'''
+
+
+def p58():
+    lying = 1 + 4
+    p1, p2, p3, p4 = 1, 1, 1, 1
+    prime_cnt = 0
+
+    for i, spiral in enumerate(count(3, 2)):
+
+        p1 = p1 + (8 * i) + 2  # left up
+        p2 = p2 + (8 * i) + 8  # right up
+        p3 = p3 + (8 * i) + 4  # left down
+        p4 = p4 + (8 * i) + 6  # right down
+        if is_prime(p1):
+            prime_cnt += 1
+        if is_prime(p2):
+            prime_cnt += 1
+        if is_prime(p3):
+            prime_cnt += 1
+        if is_prime(p4):
+            prime_cnt += 1
+
+        ratio = prime_cnt * 100 / lying
+        # print([spiral], p1, p2, p3, p4, '\t', prime_cnt, lying, ratio)
+        if ratio < 10:
+            print('[58]: ', spiral)
+            return
+        lying += 4
+
+
+'''
+Problem 59
+Each character on a computer is assigned a unique code and the preferred standard is
+ASCII (American Standard Code for Information Interchange).
+For example, uppercase A = 65, asterisk (*) = 42, and lowercase k = 107.
+A modern encryption method is to take a text file, convert the bytes to ASCII,
+then XOR each byte with a given value, taken from a secret key.
+The advantage with the XOR function is that using the same encryption key on the cipher text,
+restores the plain text;
+for example, 65 XOR 42 = 107, then 107 XOR 42 = 65.
+
+For unbreakable encryption, the key is the same length as the plain text message,
+and the key is made up of random bytes.
+The user would keep the encrypted message and the encryption key in different locations,
+and without both "halves", it is impossible to decrypt the message.
+Unfortunately, this method is impractical for most users,
+so the modified method is to use a password as a key.
+If the password is shorter than the message, which is likely,
+the key is repeated cyclically throughout the message.
+The balance for this method is using a sufficiently long password key for security,
+but short enough to be memorable.
+
+Your task has been made easy, as the encryption key consists of three lower case characters.
+Using cipher.txt (right click and 'Save Link/Target As...'),
+a file containing the encrypted ASCII codes, and the knowledge
+that the plain text must contain common English words,
+decrypt the message and find the sum of the ASCII values in the original text.
+'''
+
+
+def p59():
+
+    with open('cipher.txt') as f:
+        for line in f:
+            names = line.replace('"', '').replace('\n', '').split(',')
+    names = sorted(names)
+ 
