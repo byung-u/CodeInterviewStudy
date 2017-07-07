@@ -1,6 +1,6 @@
-import math
 import operator
 
+from math import sqrt
 from functools import reduce
 
 
@@ -33,7 +33,7 @@ def is_prime(n):
     '''check if integer n is a prime'''
 
     # make sure n is a positive integer
-    n = abs(int(n))
+    # n = abs(int(n))
 
     # 0 and 1 are not primes
     if n < 2:
@@ -76,7 +76,7 @@ def prod(factors):
 
 def factors(n):
     results = set()
-    for i in range(1, int(math.sqrt(n)) + 1):
+    for i in range(1, int(sqrt(n)) + 1):
         if n % i == 0:
             results.add(i)
             results.add(int(n/i))
@@ -84,7 +84,7 @@ def factors(n):
 
 
 def is_square(integer):
-    root = math.sqrt(integer)
+    root = sqrt(integer)
     if int(root + 0.5) ** 2 == integer:
         return True
     else:
@@ -100,7 +100,7 @@ def prime_sieve(sieveSize):
     sieve[1] = False
 
     # create the sieve
-    for i in range(2, int(math.sqrt(sieveSize)) + 1):
+    for i in range(2, int(sqrt(sieveSize)) + 1):
         pointer = i * 2
         while pointer < sieveSize:
             sieve[pointer] = False
@@ -116,10 +116,48 @@ def prime_sieve(sieveSize):
 
 
 def triangle_number(n):
-    return (n * (n+1)) / 2
+    return int((n * (n+1)) / 2)
 
 
-def factorial(n):
-    if n == 0:
-        return 1
-    return n * factorial(n - 1)
+def pentagonal_number(n):
+    return int(n * ((3 * n) - 1) / 2)
+
+
+def hexagonal_number(n):
+    return int(n * (2 * n - 1))
+
+
+def is_triangle(n):
+    # https://en.wikipedia.org/wiki/Triangular_number
+    t = (sqrt((8 * n) + 1) - 1) / 4
+    return t.is_integer()
+
+
+def is_square(n):
+    s = sqrt(n)
+    return s.is_integer()
+
+
+def is_pentagonal(n):
+    # https://stackoverflow.com/questions/37390233/python-is-pentagonal-number-check
+    # https://en.wikipedia.org/wiki/Pentagonal_number#Tests_for_pentagonal_numbers
+    p = (sqrt((24 * n) + 1) + 1) / 6
+    return p.is_integer()
+
+
+def is_hexagonal(n):
+    # https://en.wikipedia.org/wiki/Hexagonal_number
+    h = (sqrt((8 * n) + 1) + 1) / 4
+    return h.is_integer()
+
+
+def is_heptagonal(n):
+    # https://en.wikipedia.org/wiki/Heptagonal_number
+    h = (sqrt((40 * n) + 9) + 3) / 10
+    return h.is_integer()
+
+
+def is_octagonal(n):
+    # https://en.wikipedia.org/wiki/Octagonal_number
+    o = (sqrt((3 * n) + 1) + 1) / 3
+    return o.is_integer()
