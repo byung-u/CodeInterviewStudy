@@ -19,68 +19,29 @@ being the first member of this family, is the smallest prime with this property.
 Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit,
 is part of an eight prime value family.
 '''
-
-
-def check_prime_cnt(idx, prime_str):
-    d = {}
-    p_found = []
-    for i in range(len(prime_str)):
-        if prime_str[i] == str(idx):
-            p_found.append(i)
-    if p_found[-1] == len(prime_str) - 1:
-        return 0
-
-    comb = combinations(p_found, 2)
-    for c in comb:
-        cnt = 0
-        temp = list(map(str, prime_str))
-        for i in range(0, 10):
-            if i == 0:
-                if c[0] == 0:
-                    continue
-            # if (9 - i) + cnt < 8:
-                # break
-            temp[c[0]] = str(i)
-            temp[c[1]] = str(i)
-            if is_prime(int(''.join(temp))):
-                cnt += 1
-                d[int(''.join(temp))] = cnt
-    if len(d) == 0:
-        return 0
-    if 6 < d[max(d, key=d.get)]:
-        print(prime_str, d[max(d, key=d.get)])
-    return d[max(d, key=d.get)]
+def check_rp(num_str, input_num):
+    if num_str.count('0') >= 2:
+        num_str_len = len(num_str)
+        p_found = [j for j in range(num_str_len) if num_str[j] == '0']
+        comb = combinations(p_found, 2)
+        for c in comb:
+            diff = 10 ** (num_str_len -1 - c[0])
+            diff += 10 ** (num_str_len -1 - c[1])
+            rp = [(input_num + k * diff) for k in range(0, 10) if is_prime(input_num + (k * diff))]
+            if len(rp) > 6:
+                print(len(rp), rp)
+            if len(rp) > 7:
+                print(len(rp), rp, i)
+                return
 
 
 def p51():
-    all_primes = prime_sieve(500000000)
-    primes = []
-    for p in all_primes:
-        str_p = str(p)
-        if len(str_p) == len(set(str_p)):
-            continue
-        primes.append(p)
-    prime_len = len(primes)
-    # for i in range(1683605, prime_len):  # primes[5780] = 56693
-    166278239
-    for i in range(5581720, prime_len):  # primes[5780] = 56693
-        prime_str = str(primes[i])
-        prime_cnt = prime_str.count('0')
-        if prime_cnt >= 2:
-            if check_prime_cnt(0, prime_str) == 8:
-                print('[51]: ', primes[i])
-                return
-        prime_cnt = prime_str.count('1')
-        if prime_cnt >= 2:
-            if check_prime_cnt(1, prime_str) == 8:
-                print('[51]: ', primes[i])
-                return
-        prime_cnt = prime_str.count('2')
-        if prime_cnt >= 2:
-            if check_prime_cnt(2, prime_str) == 8:
-                print('[51]: ', primes[i])
-                return
-
+    # for i in count(140100641, 2):
+    for i in count(285304301, 10):
+        check_rp(str(i), i)
+        check_rp(str(i+2), i + 2)  # 3
+        check_rp(str(i+6), i + 6)  # 7
+        check_rp(str(i+8), i + 8)  # 9
 
 '''
 Problem 52
@@ -484,9 +445,96 @@ For example, taking 7 and 109, both 7109 and 1097 are prime.
 The sum of these four primes, 792, represents the lowest sum for a set of four primes with this property.
 Find the lowest sum for a set of five primes for which any two primes concatenate to produce another prime.
 '''
+# (13, 5197, 5701, 6733, 8389)
 
 
-def p60():
+def p60():  # pretty bad  ㅜ.ㅜ
+    # ret = []
+    for i in range(3, 1000, 2):
+        if i == 5:
+            continue
+        if is_prime(i) is False:
+            continue
+
+        for j in range(7, 10000, 2):
+            if is_prime(j) is False:
+                continue
+            chk = '%d%d' % (i, j)
+            if is_prime(int(chk)) is False:
+                continue
+            chk = '%d%d' % (j, i)
+            if is_prime(int(chk)) is False:
+                continue
+
+            for k in range(109, 10000, 2):
+                if is_prime(k) is False:
+                    continue
+                chk = '%d%d' % (k, i)
+                if is_prime(int(chk)) is False:
+                    continue
+                chk = '%d%d' % (i, k)
+                if is_prime(int(chk)) is False:
+                    continue
+                chk = '%d%d' % (j, k)
+                if is_prime(int(chk)) is False:
+                    continue
+                chk = '%d%d' % (k, j)
+                if is_prime(int(chk)) is False:
+                    continue
+
+                for l in range(673, 10000, 2):
+                    if is_prime(l) is False:
+                        continue
+                    chk = '%d%d' % (l, i)
+                    if is_prime(int(chk)) is False:
+                        continue
+                    chk = '%d%d' % (i, l)
+                    if is_prime(int(chk)) is False:
+                        continue
+                    chk = '%d%d' % (j, l)
+                    if is_prime(int(chk)) is False:
+                        continue
+                    chk = '%d%d' % (l, j)
+                    if is_prime(int(chk)) is False:
+                        continue
+                    chk = '%d%d' % (k, l)
+                    if is_prime(int(chk)) is False:
+                        continue
+                    chk = '%d%d' % (l, k)
+                    if is_prime(int(chk)) is False:
+                        continue
+
+                    for m in range(677, 10000, 2):
+                        if is_prime(m) is False:
+                            continue
+                        chk = '%d%d' % (m, i)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (i, m)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (j, m)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (m, j)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (k, m)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (m, k)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (l, m)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        chk = '%d%d' % (m, l)
+                        if is_prime(int(chk)) is False:
+                            continue
+                        print ('[60]: ', (i + j + k + l+ m))
+                        return
+                        # found = (i, j, k, l, m)
+                        # ret.append(found)
     return
 
 
@@ -688,6 +736,8 @@ The first ten continued fraction representations of (irrational) square roots ar
 Exactly four continued fractions, for N ≤ 13, have an odd period.
 How many continued fractions for N ≤ 10000 have an odd period?
 '''
+
+
 '''
 Problem 65
 The square root of 2 can be written as an infinite continued fraction.
@@ -721,4 +771,212 @@ By finding minimal solutions in x for D = {2, 3, 5, 6, 7}, we obtain the followi
 82 – 7×32 = 1
 Hence, by considering minimal solutions in x for D ≤ 7, the largest x is obtained when D=5.
 Find the value of D ≤ 1000 in minimal solutions of x for which the largest value of x is obtained.
+'''
+
+
+
+'''
+Problem 67
+By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
+3
+7 4
+2 4 6
+8 5 9 3
+That is, 3 + 7 + 4 + 9 = 23.
+Find the maximum total from top to bottom in triangle.txt (right click and 'Save Link/Target As...'), a 15K text file containing a triangle with one-hundred rows.
+NOTE: This is a much more difficult version of Problem 18. It is not possible to try every route to solve this problem, as there are 299 altogether! If you could check one trillion (1012) routes every second it would take over twenty billion years to check them all. There is an efficient algorithm to solve it. ;o)
+'''
+
+def p67():
+    tri = []
+    with open('triangle.txt') as f:
+        for line in f:
+            p = line.split()
+            tri.append(list(map(int, p)))
+    rtri = [tri[i] for i in reversed(range(0, len(tri)))]
+    len_tri = len(rtri) - 1
+    for i in range(0, len_tri):
+        for j in range(0, len_tri - i):
+            rtri[i+1][j] = max(rtri[i][j] + rtri[i+1][j] , rtri[i][j+1] + rtri[i+1][j])
+    print('[67]: ', rtri[99][0])
+    return
+
+
+'''
+Problem 68
+Consider the following "magic" 3-gon ring, filled with the numbers 1 to 6, and each line adding to nine.
+
+
+Working clockwise, and starting from the group of three with the numerically lowest external node (4,3,2 in this example), each solution can be described uniquely. For example, the above solution can be described by the set: 4,3,2; 6,2,1; 5,1,3.
+It is possible to complete the ring with four different totals: 9, 10, 11, and 12. There are eight solutions in total.
+
+TotalSolution Set
+94,2,3; 5,3,1; 6,1,2
+94,3,2; 6,2,1; 5,1,3
+102,3,5; 4,5,1; 6,1,3
+102,5,3; 6,3,1; 4,1,5
+111,4,6; 3,6,2; 5,2,4
+111,6,4; 5,4,2; 3,2,6
+121,5,6; 2,6,4; 3,4,5
+121,6,5; 3,5,4; 2,4,6
+
+By concatenating each group it is possible to form 9-digit strings; the maximum string for a 3-gon ring is 432621513.
+Using the numbers 1 to 10, and depending on arrangements, it is possible to form 16- and 17-digit strings. What is the maximum 16-digit string for a "magic" 5-gon ring?
+'''
+
+
+
+'''
+Problem 69
+Euler's Totient function, φ(n) [sometimes called the phi function], 
+is used to determine the number of numbers less than n which are relatively prime to n. 
+For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
+
+n Relatively Prime φ(n) n/φ(n)
+2 1             1 2
+3 1,2           2 1.5
+4 1,3           2 2
+5 1,2,3,4       4 1.25
+6 1,5           2 3
+7 1,2,3,4,5,6   6 1.1666...
+8 1,3,5,7       4 2
+9 1,2,4,5,7,8   6 1.5
+10 1,3,7,9      4 2.5
+
+It can be seen that n=6 produces a maximum n/φ(n) for n ≤ 10.
+Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
+'''
+
+
+def p69():
+    # number has most primes devidor is the answer
+     # 2 * 3 * 5 * 7 * 11 * 13 * 17 = 510510
+     # 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19 = 9699690
+    print('[69]: ', 2 * 3 * 5 * 7 * 11 * 13 * 17)
+
+
+'''
+Problem 70
+Euler's Totient function, φ(n) [sometimes called the phi function], 
+is used to determine the number of positive numbers less than or equal to n which are relatively prime to n. 
+For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
+The number 1 is considered to be relatively prime to every positive number, so φ(1)=1. 
+Interestingly, φ(87109)=79180, and it can be seen that 87109 is a permutation of 79180.
+Find the value of n, 1 < n < 10^7,
+for which φ(n) is a permutation of n and the ratio n/φ(n) produces a minimum.
+'''
+
+
+'''
+Problem 71
+Consider the fraction, n/d, where n and d are positive integers. If n<d and HCF(n,d)=1, it is called a reduced proper fraction.
+If we list the set of reduced proper fractions for d ≤ 8 in ascending order of size, we get:
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+It can be seen that 2/5 is the fraction immediately to the left of 3/7.
+By listing the set of reduced proper fractions for d ≤ 1,000,000 in ascending order of size, find the numerator of the fraction immediately to the left of 3/7.
+'''
+'''
+Problem 72
+Consider the fraction, n/d, where n and d are positive integers. If n<d and HCF(n,d)=1, it is called a reduced proper fraction.
+If we list the set of reduced proper fractions for d ≤ 8 in ascending order of size, we get:
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+It can be seen that there are 21 elements in this set.
+How many elements would be contained in the set of reduced proper fractions for d ≤ 1,000,000?
+'''
+'''
+Problem 73
+Consider the fraction, n/d, where n and d are positive integers. If n<d and HCF(n,d)=1, it is called a reduced proper fraction.
+If we list the set of reduced proper fractions for d ≤ 8 in ascending order of size, we get:
+1/8, 1/7, 1/6, 1/5, 1/4, 2/7, 1/3, 3/8, 2/5, 3/7, 1/2, 4/7, 3/5, 5/8, 2/3, 5/7, 3/4, 4/5, 5/6, 6/7, 7/8
+It can be seen that there are 3 fractions between 1/3 and 1/2.
+How many fractions lie between 1/3 and 1/2 in the sorted set of reduced proper fractions for d ≤ 12,000?
+'''
+
+'''
+Problem 74
+The number 145 is well known for the property that the sum of the factorial of its digits is equal to 145:
+1! + 4! + 5! = 1 + 24 + 120 = 145
+Perhaps less well known is 169, in that it produces the longest chain of numbers that link back to 169; 
+it turns out that there are only three such loops that exist:
+169 → 363601 → 1454 → 169
+871 → 45361 → 871
+872 → 45362 → 872
+It is not difficult to prove that EVERY starting number will eventually get stuck in a loop. For example,
+69 → 363600 → 1454 → 169 → 363601 (→ 1454)
+78 → 45360 → 871 → 45361 (→ 871)
+540 → 145 (→ 145)
+Starting with 69 produces a chain of five non-repeating terms, 
+but the longest non-repeating chain with a starting number below one million is sixty terms.
+How many chains, with a starting number below one million, contain exactly sixty non-repeating terms?
+'''
+
+
+def check_74_factorial(factorials, i, str_i):
+    check = []
+    check.append(i)
+    cnt = 0
+    while (1):
+        cnt += 1
+        if cnt > 60:
+            return 0
+        sums = [factorials[int(str_i[j])] for j in range(0, len(str_i))]
+        res = sum(sums)
+        if res not in check:
+            check.append(res)
+        else:
+            return cnt
+        str_i = str(res)
+
+
+def p74():
+    factorials = [factorial(i) for i in range(0, 10)]
+    ret = [i for i in range(1000000, 1, -1) if check_74_factorial(factorials, i, str(i)) == 60]
+    print('[74]: ', len(ret))
+
+
+'''
+Problem 75
+It turns out that 12 cm is the smallest length of wire that can be bent to form an integer sided right angle triangle in exactly one way, but there are many more examples.
+12 cm: (3,4,5)24 cm: (6,8,10)30 cm: (5,12,13)36 cm: (9,12,15)40 cm: (8,15,17)48 cm: (12,16,20)
+In contrast, some lengths of wire, like 20 cm, cannot be bent to form an integer sided right angle triangle, and other lengths allow more than one solution to be found; for example, using 120 cm it is possible to form exactly three different integer sided right angle triangles.
+120 cm: (30,40,50), (20,48,52), (24,45,51)
+Given that L is the length of the wire, for how many values of L ≤ 1,500,000 can exactly one integer sided right angle triangle be formed?
+'''
+'''
+Problem 76
+It is possible to write five as a sum in exactly six different ways:
+4 + 1
+3 + 2
+3 + 1 + 1
+2 + 2 + 1
+2 + 1 + 1 + 1
+1 + 1 + 1 + 1 + 1
+How many different ways can one hundred be written as a sum of at least two positive integers?
+'''
+
+
+'''
+Problem 77
+It is possible to write ten as the sum of primes in exactly five different ways:
+7 + 3
+5 + 5
+5 + 3 + 2
+3 + 3 + 2 + 2
+2 + 2 + 2 + 2 + 2
+What is the first value which can be written as the sum of primes in over five thousand different ways?
+'''
+
+'''
+Problem 78
+Let p(n) represent the number of different ways in which n coins can be separated into piles. For example, five coins can be separated into piles in exactly seven different ways, so p(6)=7.
+
+OOOOO
+OOOO   O
+OOO   OO
+OOO   O   O
+OO   OO   O
+OO   O   O   O
+O   O   O   O   O
+
+Find the least value of n for which p(n) is divisible by one million.
 '''
