@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from itertools import count, combinations
-from math import factorial
+from itertools import count
+from math import factorial, sqrt
 
-from util import (is_palindromic, prime_sieve, is_prime, is_triangle,
+from util import (is_palindromic, is_prime, is_triangle,
                   is_square, is_pentagonal, is_hexagonal, is_heptagonal,
                   is_octagonal)
 
@@ -19,29 +19,29 @@ being the first member of this family, is the smallest prime with this property.
 Find the smallest prime which, by replacing part of the number (not necessarily adjacent digits) with the same digit,
 is part of an eight prime value family.
 '''
+
+
 def check_rp(num_str, input_num):
-    if num_str.count('0') >= 2:
+    if num_str.count('1') == 3:  # *** 3 same digits
         num_str_len = len(num_str)
-        p_found = [j for j in range(num_str_len) if num_str[j] == '0']
-        comb = combinations(p_found, 2)
-        for c in comb:
-            diff = 10 ** (num_str_len -1 - c[0])
-            diff += 10 ** (num_str_len -1 - c[1])
-            rp = [(input_num + k * diff) for k in range(0, 10) if is_prime(input_num + (k * diff))]
-            if len(rp) > 6:
-                print(len(rp), rp)
-            if len(rp) > 7:
-                print(len(rp), rp, i)
-                return
+        c = [j for j in range(num_str_len) if num_str[j] == '1']
+        diff = 10 ** (num_str_len - 1 - c[0])
+        diff += 10 ** (num_str_len - 1 - c[1])
+        diff += 10 ** (num_str_len - 1 - c[2])
+        rp = [(input_num + k * diff) for k in range(0, 9) if is_prime(input_num + (k * diff))]
+        if is_prime(input_num - diff) and len(str(input_num - diff)) == num_str_len:
+            rp.append(input_num - diff)
+        if len(rp) > 7:
+            print('[51]: ', min(rp))
+            return True
+    return False
 
 
 def p51():
-    # for i in count(140100641, 2):
-    for i in count(285304301, 10):
-        check_rp(str(i), i)
-        check_rp(str(i+2), i + 2)  # 3
-        check_rp(str(i+6), i + 6)  # 7
-        check_rp(str(i+8), i + 8)  # 9
+    for i in count(56001, 2):
+        if check_rp(str(i), i):
+            break
+
 
 '''
 Problem 52
@@ -531,10 +531,8 @@ def p60():  # pretty bad  ㅜ.ㅜ
                         chk = '%d%d' % (m, l)
                         if is_prime(int(chk)) is False:
                             continue
-                        print ('[60]: ', (i + j + k + l+ m))
+                        print('[60]: ', (i + j + k + l + m))
                         return
-                        # found = (i, j, k, l, m)
-                        # ret.append(found)
     return
 
 
@@ -738,6 +736,24 @@ How many continued fractions for N ≤ 10000 have an odd period?
 '''
 
 
+def continued_frac(S):
+    # https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Continued_fraction_expansion
+    if is_square(S):
+        return -1
+    m, d, a = 0, 1, sqrt(S)
+    duration = 0
+    while duration == 0 or d != 1:
+        m = int(d * a) - m
+        d = (S - m * m) // d
+        a = (sqrt(S) + m) // d
+        duration += 1
+    return duration % 2
+
+
+def p64():
+    print(len([i for i in range(1, 10001) if continued_frac(i)]))
+
+
 '''
 Problem 65
 The square root of 2 can be written as an infinite continued fraction.
@@ -774,7 +790,6 @@ Find the value of D ≤ 1000 in minimal solutions of x for which the largest val
 '''
 
 
-
 '''
 Problem 67
 By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
@@ -784,8 +799,12 @@ By starting at the top of the triangle below and moving to adjacent numbers on t
 8 5 9 3
 That is, 3 + 7 + 4 + 9 = 23.
 Find the maximum total from top to bottom in triangle.txt (right click and 'Save Link/Target As...'), a 15K text file containing a triangle with one-hundred rows.
-NOTE: This is a much more difficult version of Problem 18. It is not possible to try every route to solve this problem, as there are 299 altogether! If you could check one trillion (1012) routes every second it would take over twenty billion years to check them all. There is an efficient algorithm to solve it. ;o)
+NOTE: This is a much more difficult version of Problem 18.
+It is not possible to try every route to solve this problem, as there are 299 altogether!
+If you could check one trillion (1012) routes every second it would take over twenty billion years to check them all.
+There is an efficient algorithm to solve it. ;o)
 '''
+
 
 def p67():
     tri = []
@@ -797,7 +816,7 @@ def p67():
     len_tri = len(rtri) - 1
     for i in range(0, len_tri):
         for j in range(0, len_tri - i):
-            rtri[i+1][j] = max(rtri[i][j] + rtri[i+1][j] , rtri[i][j+1] + rtri[i+1][j])
+            rtri[i + 1][j] = max(rtri[i][j] + rtri[i + 1][j], rtri[i][j + 1] + rtri[i + 1][j])
     print('[67]: ', rtri[99][0])
     return
 
@@ -806,9 +825,11 @@ def p67():
 Problem 68
 Consider the following "magic" 3-gon ring, filled with the numbers 1 to 6, and each line adding to nine.
 
-
-Working clockwise, and starting from the group of three with the numerically lowest external node (4,3,2 in this example), each solution can be described uniquely. For example, the above solution can be described by the set: 4,3,2; 6,2,1; 5,1,3.
-It is possible to complete the ring with four different totals: 9, 10, 11, and 12. There are eight solutions in total.
+Working clockwise, and starting from the group of three with the numerically lowest external node (4,3,2 in this example),
+each solution can be described uniquely.
+For example, the above solution can be described by the set: 4,3,2; 6,2,1; 5,1,3.
+It is possible to complete the ring with four different totals: 9, 10, 11, and 12.
+There are eight solutions in total.
 
 TotalSolution Set
 94,2,3; 5,3,1; 6,1,2
@@ -825,11 +846,10 @@ Using the numbers 1 to 10, and depending on arrangements, it is possible to form
 '''
 
 
-
 '''
 Problem 69
-Euler's Totient function, φ(n) [sometimes called the phi function], 
-is used to determine the number of numbers less than n which are relatively prime to n. 
+Euler's Totient function, φ(n) [sometimes called the phi function],
+is used to determine the number of numbers less than n which are relatively prime to n.
 For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
 
 n Relatively Prime φ(n) n/φ(n)
@@ -850,21 +870,29 @@ Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
 
 def p69():
     # number has most primes devidor is the answer
-     # 2 * 3 * 5 * 7 * 11 * 13 * 17 = 510510
-     # 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19 = 9699690
+    # 2 * 3 * 5 * 7 * 11 * 13 * 17 = 510510
+    # 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19 = 9699690
     print('[69]: ', 2 * 3 * 5 * 7 * 11 * 13 * 17)
 
 
 '''
 Problem 70
-Euler's Totient function, φ(n) [sometimes called the phi function], 
-is used to determine the number of positive numbers less than or equal to n which are relatively prime to n. 
+Euler's Totient function, φ(n) [sometimes called the phi function],
+is used to determine the number of positive numbers less than or equal to n which are relatively prime to n.
 For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
-The number 1 is considered to be relatively prime to every positive number, so φ(1)=1. 
+The number 1 is considered to be relatively prime to every positive number, so φ(1)=1.
 Interestingly, φ(87109)=79180, and it can be seen that 87109 is a permutation of 79180.
 Find the value of n, 1 < n < 10^7,
 for which φ(n) is a permutation of n and the ratio n/φ(n) produces a minimum.
 '''
+
+
+def p70():
+    val = (10 ** 7) - 1
+    for i in range(val, 1, -2):
+        if is_prime(i):
+            # p = phi(i)
+            return
 
 
 '''
@@ -896,7 +924,7 @@ How many fractions lie between 1/3 and 1/2 in the sorted set of reduced proper f
 Problem 74
 The number 145 is well known for the property that the sum of the factorial of its digits is equal to 145:
 1! + 4! + 5! = 1 + 24 + 120 = 145
-Perhaps less well known is 169, in that it produces the longest chain of numbers that link back to 169; 
+Perhaps less well known is 169, in that it produces the longest chain of numbers that link back to 169;
 it turns out that there are only three such loops that exist:
 169 → 363601 → 1454 → 169
 871 → 45361 → 871
@@ -905,7 +933,7 @@ It is not difficult to prove that EVERY starting number will eventually get stuc
 69 → 363600 → 1454 → 169 → 363601 (→ 1454)
 78 → 45360 → 871 → 45361 (→ 871)
 540 → 145 (→ 145)
-Starting with 69 produces a chain of five non-repeating terms, 
+Starting with 69 produces a chain of five non-repeating terms,
 but the longest non-repeating chain with a starting number below one million is sixty terms.
 How many chains, with a starting number below one million, contain exactly sixty non-repeating terms?
 '''
@@ -938,7 +966,9 @@ def p74():
 Problem 75
 It turns out that 12 cm is the smallest length of wire that can be bent to form an integer sided right angle triangle in exactly one way, but there are many more examples.
 12 cm: (3,4,5)24 cm: (6,8,10)30 cm: (5,12,13)36 cm: (9,12,15)40 cm: (8,15,17)48 cm: (12,16,20)
-In contrast, some lengths of wire, like 20 cm, cannot be bent to form an integer sided right angle triangle, and other lengths allow more than one solution to be found; for example, using 120 cm it is possible to form exactly three different integer sided right angle triangles.
+In contrast, some lengths of wire, like 20 cm, cannot be bent to form an integer sided right angle triangle,
+and other lengths allow more than one solution to be found; for example,
+using 120 cm it is possible to form exactly three different integer sided right angle triangles.
 120 cm: (30,40,50), (20,48,52), (24,45,51)
 Given that L is the length of the wire, for how many values of L ≤ 1,500,000 can exactly one integer sided right angle triangle be formed?
 '''
@@ -979,4 +1009,233 @@ OO   O   O   O
 O   O   O   O   O
 
 Find the least value of n for which p(n) is divisible by one million.
+'''
+'''
+Problem 79
+A common security method used for online banking is to ask the user for three random characters from a passcode.
+For example, if the passcode was 531278, they may ask for the 2nd, 3rd, and 5th characters; the expected reply would be: 317.
+The text file, keylog.txt, contains fifty successful login attempts.
+Given that the three characters are always asked for in order, analyse the file so as to determine the shortest possible secret passcode of unknown length.
+'''
+
+
+def p79():
+    print('[79]: ', 73162890)  # by hand
+
+
+# Simple algorithm:
+#
+# 1. Work out all the digits necessary, put them in a unordered list
+# 2. Use the logins to do a normal bubble-sort of the digits by:
+#   a. for each two-digit pair to compare:
+#   b. find a login that contains both digits
+#   c. use the ordering in the login to order the digits correctly
+#
+# Python:
+#
+# def read_logins():
+#     f = open("keylog.txt")
+#     l = f.read().split('\n')
+#     f.close()
+#     return l
+#
+# def get_digits(logins):
+#     digits = set()
+#     result = []
+#     for login in logins:
+#         for digit in login:
+#             if digit not in digits:
+#                 result.append(digit)
+#                 digits.add(digit)
+#     return result
+#
+# def compare(logins, d1, d2):
+#     for login in logins:
+#         if d1 in login and d2 in login:
+#             i1 = login.find(d1)
+#             i2 = login.find(d2)
+#             if i1 < i2:
+#                 return -1
+#             elif i1 > i2:
+#                 return +1
+#             else:
+#                 raise Exception, "Invalid comparison for " + d1 + "," + d2
+#
+# def sort_digits():
+#     logins = read_logins()
+#     digits = get_digits(logins)
+#     for i in range(0, len(digits)-1):
+#         for j in range(i+1, len(digits)):
+#             comp = compare(logins, digits[i], digits[j])
+#             if comp > 0:
+#                 digits[i], digits[j] = digits[j], digits[i]
+#     return digits
+#
+# digits = sort_digits()
+# print digits
+
+
+'''
+Problem 80
+It is well known that if the square root of a natural number is not an integer, then it is irrational. The decimal expansion of such square roots is infinite without any repeating pattern at all.
+The square root of two is 1.41421356237309504880..., and the digital sum of the first one hundred decimal digits is 475.
+For the first one hundred natural numbers, find the total of the digital sums of the first one hundred decimal digits for all the irrational square roots.
+'''
+'''
+Problem 81
+In the 5 by 5 matrix below, the minimal path sum from the top left to the bottom right, by only moving to the right and down, is indicated in bold red and is equal to 2427.
+
+$$
+\begin{pmatrix}
+\color{red}{131} & 673 & 234 & 103 & 18\\
+\color{red}{201} & \color{red}{96} & \color{red}{342} & 965 & 150\\
+630 & 803 & \color{red}{746} & \color{red}{422} & 111\\
+537 & 699 & 497 & \color{red}{121} & 956\\
+805 & 732 & 524 & \color{red}{37} & \color{red}{331}
+\end{pmatrix}
+$$
+
+Find the minimal path sum, in matrix.txt (right click and "Save Link/Target As..."), a 31K text file containing a 80 by 80 matrix, from the top left to the bottom right by only moving right and down.
+'''
+'''
+Problem 82
+NOTE: This problem is a more challenging version of Problem 81.
+The minimal path sum in the 5 by 5 matrix below, by starting in any cell in the left column and finishing in any cell in the right column,
+and only moving up, down, and right, is indicated in red and bold; the sum is equal to 994.
+
+$$
+\begin{pmatrix}
+131 & 673 & \color{red}{234} & \color{red}{103} & \color{red}{18}\\
+\color{red}{201} & \color{red}{96} & \color{red}{342} & 965 & 150\\
+630 & 803 & 746 & 422 & 111\\
+537 & 699 & 497 & 121 & 956\\
+805 & 732 & 524 & 37 & 331
+\end{pmatrix}
+$$
+
+Find the minimal path sum, in matrix.txt (right click and "Save Link/Target As..."), a 31K text file containing a 80 by 80 matrix, from the left column to the right column.
+'''
+'''
+Problem 83
+NOTE: This problem is a significantly more challenging version of Problem 81.
+In the 5 by 5 matrix below, the minimal path sum from the top left to the bottom right, by moving left, right, up, and down, is indicated in bold red and is equal to 2297.
+
+$$
+\begin{pmatrix}
+\color{red}{131} & 673 & \color{red}{234} & \color{red}{103} & \color{red}{18}\\
+\color{red}{201} & \color{red}{96} & \color{red}{342} & 965 & \color{red}{150}\\
+630 & 803 & 746 & \color{red}{422} & \color{red}{111}\\
+537 & 699 & 497 & \color{red}{121} & 956\\
+805 & 732 & 524 & \color{red}{37} & \color{red}{331}
+\end{pmatrix}
+$$
+
+Find the minimal path sum, in matrix.txt (right click and
+"Save Link/Target As..."), a 31K text file containing a 80 by 80 matrix, from the top left to the bottom right by moving left, right, up, and down.
+'''
+'''
+Problem 84
+In the game, Monopoly, the standard board is set up in the following way:
+
+GO A1 CC1 A2 T1 R1 B1 CH1 B2 B3 JAIL
+H2                               C1
+T2                               U1
+H1                               C2
+CH3                              C3
+R4                               R2
+G3                               D1
+CC3                              CC2
+G2                               D2
+G1                               D3
+G2J F3 U2 F2 F1 R3 E3 E2 CH2 E1 FP
+
+A player starts on the GO square and adds the scores on two 6-sided dice to determine the number of squares they advance in a clockwise direction.
+Without any further rules we would expect to visit each square with equal probability: 2.5%.
+However, landing on G2J (Go To Jail), CC (community chest), and CH (chance) changes this distribution.
+In addition to G2J, and one card from each of CC and CH, that orders the player to go directly to jail,
+if a player rolls three consecutive doubles, they do not advance the result of their 3rd roll.
+    Instead they proceed directly to jail.
+At the beginning of the game, the CC and CH cards are shuffled.
+When a player lands on CC or CH they take a card from the top of the respective pile and, after following the instructions, it is returned to the bottom of the pile.
+There are sixteen cards in each pile, but for the purpose of this problem we are only concerned with cards that order a movement;
+any instruction not concerned with movement will be ignored and the player will remain on the CC/CH square.
+Community Chest (2/16 cards):
+    Advance to GO
+    Go to JAIL
+
+Chance (10/16 cards):
+    Advance to GO
+    Go to JAIL
+    Go to C1
+    Go to E3
+    Go to H2
+    Go to R1
+    Go to next R (railway company)
+    Go to next R
+    Go to next U (utility company)
+    Go back 3 squares.
+
+The heart of this problem concerns the likelihood of visiting a particular square.
+That is, the probability of finishing at that square after a roll.
+For this reason it should be clear that, with the exception of G2J for which the probability of finishing on it is zero,
+the CH squares will have the lowest probabilities, as 5/8 request a movement to another square,
+and it is the final square that the player finishes at on each roll that we are interested in.
+We shall make no distinction between "Just Visiting" and being sent to JAIL,
+and we shall also ignore the rule about requiring a double to "get out of jail", assuming that they pay to get out on their next turn.
+By starting at GO and numbering the squares sequentially from 00 to 39 we can concatenate these two-digit numbers to produce strings that correspond with sets of squares.
+Statistically it can be shown that the three most popular squares, in order,
+are JAIL (6.24%) = Square 10, E3 (3.18%) = Square 24,
+and GO (3.09%) = Square 00.
+So these three most popular squares can be listed with the six-digit modal string: 102400.
+If, instead of using two 6-sided dice, two 4-sided dice are used, find the six-digit modal string.
+'''
+
+
+'''
+Problem 85
+By counting carefully it can be seen that a rectangular grid measuring 3 by 2 contains eighteen rectangles:
+
+
+Although there exists no rectangular grid that contains exactly two million rectangles, find the area of the grid with the nearest solution.
+'''
+'''
+Problem 86
+A spider, S, sits in one corner of a cuboid room, measuring 6 by 5 by 3, and a fly, F, sits in the opposite corner.
+By travelling on the surfaces of the room the shortest "straight line" distance from S to F is 10 and the path is shown on the diagram.
+
+
+However, there are up to three "shortest" path candidates for any given cuboid and the shortest route doesn't always have integer length.
+It can be shown that there are exactly 2060 distinct cuboids, ignoring rotations, with integer dimensions, up to a maximum size of M by M by M,
+for which the shortest route has integer length when M = 100.
+This is the least value of M for which the number of solutions first exceeds two thousand;
+the number of solutions when M = 99 is 1975.
+Find the least value of M such that the number of solutions first exceeds one million.
+'''
+
+
+'''
+Problem 87
+The smallest number expressible as the sum of a prime square, prime cube, and prime fourth power is 28. In fact, there are exactly four numbers below fifty that can be expressed in such a way:
+28 = 22 + 23 + 24
+33 = 32 + 23 + 24
+49 = 52 + 23 + 24
+47 = 22 + 33 + 24
+How many numbers below fifty million can be expressed as the sum of a prime square, prime cube, and prime fourth power?
+'''
+'''
+Problem 88
+A natural number, N, that can be written as the sum and product of a given set of at least two natural numbers,
+{a1, a2, ... , ak} is called a product-sum number: N = a1 + a2 + ... + ak = a1 × a2 × ... × ak.
+For example, 6 = 1 + 2 + 3 = 1 × 2 × 3.
+For a given set of size, k, we shall call the smallest N with this property a minimal product-sum number.
+The minimal product-sum numbers for sets of size, k = 2, 3, 4, 5, and 6 are as follows.
+k=2: 4 = 2 × 2 = 2 + 2
+k=3: 6 = 1 × 2 × 3 = 1 + 2 + 3
+k=4: 8 = 1 × 1 × 2 × 4 = 1 + 1 + 2 + 4
+k=5: 8 = 1 × 1 × 2 × 2 × 2  = 1 + 1 + 2 + 2 + 2
+k=6: 12 = 1 × 1 × 1 × 1 × 2 × 6 = 1 + 1 + 1 + 1 + 2 + 6
+Hence for 2≤k≤6, the sum of all the minimal product-sum numbers is 4+6+8+12 = 30;
+note that 8 is only counted once in the sum.
+In fact, as the complete set of minimal product-sum numbers for 2≤k≤12 is {4, 6, 8, 12, 15, 16}, the sum is 61.
+What is the sum of all the minimal product-sum numbers for 2≤k≤12000?
 '''
