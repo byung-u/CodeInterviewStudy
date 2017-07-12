@@ -5,20 +5,26 @@ from functools import reduce
 
 
 def fib(n):
-    '''
-    http://oeis.org/A000045
-    http://mathworld.wolfram.com/FibonacciNumber.html
+    M[2][2] = [[1,0],[0,1]]
+    for i in range(1, n):
+        M = M * [[1,1],[1,0]]
+    return M[0][0];
 
-    Fibonacci
-        - if n = 0; 0
-        - if n = 1; 1
-        - if n > 1; Fn-1 + Fn-2
-    '''
-    if n < 2:
-        # if n == 0 return 0
-        # if n == 1 return 1
-        return n
-    return fib(n-2) + fib(n-1)
+#def fib(n):
+#    '''
+#    http://oeis.org/A000045
+#    http://mathworld.wolfram.com/FibonacciNumber.html
+#
+#    Fibonacci
+#        - if n = 0; 0
+#        - if n = 1; 1
+#        - if n > 1; Fn-1 + Fn-2
+#    '''
+#    if n < 2:
+#        # if n == 0 return 0
+#        # if n == 1 return 1
+#        return n
+#    return fib(n-2) + fib(n-1)
 
 
 def is_palindromic(n):
@@ -33,7 +39,7 @@ def is_prime(n):
     '''check if integer n is a prime'''
 
     # make sure n is a positive integer
-    # n = abs(int(n))
+    n = abs(int(n))
 
     # 0 and 1 are not primes
     if n < 2:
@@ -54,6 +60,20 @@ def is_prime(n):
             return False
 
     return True
+
+
+def prime_factors_uniq(n):
+    i = 2
+    factors = set()
+    while i * i <= n:
+        if n % i:
+            i += 1
+        else:
+            n //= i
+            factors.add(i)
+    if n > 1:
+        factors.add(n)
+    return factors
 
 
 def prime_factors(n):
@@ -161,3 +181,19 @@ def is_octagonal(n):
     # https://en.wikipedia.org/wiki/Octagonal_number
     o = (sqrt((3 * n) + 1) + 1) / 3
     return o.is_integer()
+
+
+# print('1234567890'[:9])
+# print(not '1234567890'[:9].strip('123456789'))
+def is_pandigital(n, s=9):
+    return len(n) == s and not '1234567890'[:s].strip(n)
+
+
+def phi(n):
+    # https://en.wikipedia.org/wiki/Euler%27s_totient_function#Proof_of_Euler.27s_product_formula
+    pfs = prime_factors_uniq(n)
+    p = 1
+    for pf in pfs:
+        p *= (1 - (1/pf))
+    return int(round(n * p))
+
