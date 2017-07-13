@@ -3,9 +3,9 @@
 from itertools import count
 from math import factorial, sqrt
 
-from util import (is_palindromic, is_prime, is_triangle,
+from util import (is_palindromic, is_prime, is_triangle, prime_sieve,
                   is_square, is_pentagonal, is_hexagonal, is_heptagonal,
-                  is_octagonal)
+                  is_octagonal, phi)
 
 
 '''
@@ -773,6 +773,31 @@ The sum of digits in the numerator of the 10th convergent is 1+4+5+7=17.
 Find the sum of digits in the numerator of the 100th convergent of the continued fraction for e.
 '''
 
+
+def p65():
+    n = [8, 11, 8 + 11]
+    d = [3, 4, 3 + 4]
+    i = 5
+    M = 4
+    while i < 100 + 1:
+        if i % 3 == 0:
+            n[0] = n[2] * M + n[1]
+            d[0] = d[2] * M + d[1]
+            M += 1
+        elif i % 3 == 1:
+            n[1] = n[2] * M + n[1]
+            d[1] = d[2] * M + d[1]
+            M += 1
+        elif i % 3 == 2:
+            n[2] = n[0] + n[1]
+            d[2] = d[0] + d[1]
+        i += 1
+
+    # print(n[100 % 3])
+    # print(list(map(int, (str(n[100 % 3])))))
+    print('[65]: ', sum(map(int, (str(n[100 % 3])))))
+
+
 '''
 Problem 66
 Consider quadratic Diophantine equations of the form:
@@ -832,18 +857,24 @@ It is possible to complete the ring with four different totals: 9, 10, 11, and 1
 There are eight solutions in total.
 
 TotalSolution Set
-94,2,3; 5,3,1; 6,1,2
-94,3,2; 6,2,1; 5,1,3
-102,3,5; 4,5,1; 6,1,3
-102,5,3; 6,3,1; 4,1,5
-111,4,6; 3,6,2; 5,2,4
-111,6,4; 5,4,2; 3,2,6
-121,5,6; 2,6,4; 3,4,5
-121,6,5; 3,5,4; 2,4,6
+9   4,2,3; 5,3,1; 6,1,2
+9   4,3,2; 6,2,1; 5,1,3
+10  2,3,5; 4,5,1; 6,1,3
+10  2,5,3; 6,3,1; 4,1,5
+11  1,4,6; 3,6,2; 5,2,4
+11  1,6,4; 5,4,2; 3,2,6
+12  1,5,6; 2,6,4; 3,4,5
+12  1,6,5; 3,5,4; 2,4,6
 
 By concatenating each group it is possible to form 9-digit strings; the maximum string for a 3-gon ring is 432621513.
 Using the numbers 1 to 10, and depending on arrangements, it is possible to form 16- and 17-digit strings. What is the maximum 16-digit string for a "magic" 5-gon ring?
 '''
+
+
+def p68():
+    # Used paper and pencil
+    print('[68]: wrong direction', 6537258429141031)
+    print('[68]: ', 6531031914842725)
 
 
 '''
@@ -888,11 +919,26 @@ for which φ(n) is a permutation of n and the ratio n/φ(n) produces a minimum.
 
 
 def p70():
-    val = (10 ** 7) - 1
-    for i in range(val, 1, -2):
-        if is_prime(i):
-            # p = phi(i)
-            return
+    LIMIT = 10 ** 7
+    min_n, min_r = 0, 100
+    ps = prime_sieve(10000)
+    primes = [p for p in ps if p < 10000 and p > 999]  # 4 digit primes
+    for i in range(0, len(primes)):
+        for j in range(i + 1, len(primes)):
+            n = primes[i] * primes[j]
+            if n > LIMIT:
+                continue
+            if is_prime(n):
+                continue  # never permutation number, phi(n) = n - 1
+            pn = phi(n)
+            if sorted(str(n)) != sorted(str(pn)):
+                continue  # not permutation number
+            ratio = n / pn
+            if min_r > ratio:
+                min_r = ratio
+                min_n = n
+                print(n, pn, ratio)
+    print('[70]: ', min_n)
 
 
 '''
@@ -903,6 +949,30 @@ If we list the set of reduced proper fractions for d ≤ 8 in ascending order of
 It can be seen that 2/5 is the fraction immediately to the left of 3/7.
 By listing the set of reduced proper fractions for d ≤ 1,000,000 in ascending order of size, find the numerator of the fraction immediately to the left of 3/7.
 '''
+
+
+from functools import reduce
+def gcd(*numbers):
+    """Return the greatest common divisor of the given integers"""
+    from fractions import gcd
+    return reduce(gcd, numbers)
+
+
+def p71():
+    n0, n1 = 3, 428571   # 2999997
+    d0, d1 = 7, 1000000  # 7000000
+    f0 = n0 / d0
+    f1 = n1 / d1
+    max_f2 = 0
+    max_n2 = 0
+    for n2 in range(428571, 1, -1):
+        for d2 in range(1000000, 1, -1):
+            f2 = n2 / d2
+            if f1 < f2 < f0:
+                print('[71]: ', n2)
+                return
+
+
 '''
 Problem 72
 Consider the fraction, n/d, where n and d are positive integers. If n<d and HCF(n,d)=1, it is called a reduced proper fraction.
@@ -1081,6 +1151,8 @@ It is well known that if the square root of a natural number is not an integer, 
 The square root of two is 1.41421356237309504880..., and the digital sum of the first one hundred decimal digits is 475.
 For the first one hundred natural numbers, find the total of the digital sums of the first one hundred decimal digits for all the irrational square roots.
 '''
+
+
 '''
 Problem 81
 In the 5 by 5 matrix below, the minimal path sum from the top left to the bottom right, by only moving to the right and down, is indicated in bold red and is equal to 2427.
@@ -1222,6 +1294,26 @@ The smallest number expressible as the sum of a prime square, prime cube, and pr
 47 = 22 + 33 + 24
 How many numbers below fifty million can be expressed as the sum of a prime square, prime cube, and prime fourth power?
 '''
+
+
+def p87():
+    # square 7071^2 = 49999041
+    # cube 368^3 = 49836032
+    # fourth power 84^4 = 49787136
+    primes = prime_sieve(7100)
+    sq = [p for p in primes if p <= 7071]
+    cb = [p for p in primes if p <= 368]
+    fp = [p for p in primes if p <= 84]
+    ret = []
+    for s in sq:
+        for c in cb:
+            for f in fp:
+                res = s ** 2 + c ** 3 + f ** 4
+                if res < 50000000:
+                    ret.append(res)
+    print('[87]: ', len(set(ret)))
+
+
 '''
 Problem 88
 A natural number, N, that can be written as the sum and product of a given set of at least two natural numbers,
