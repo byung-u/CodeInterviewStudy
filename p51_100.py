@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from itertools import count
+from itertools import count, combinations
 from math import factorial, sqrt
+from functools import reduce
 
 from util import (is_palindromic, is_prime, is_triangle, prime_sieve,
                   is_square, is_pentagonal, is_hexagonal, is_heptagonal,
-                  is_octagonal, phi)
+                  is_octagonal, phi, prime_factors_uniq)
 
 
 '''
@@ -951,20 +952,11 @@ By listing the set of reduced proper fractions for d ≤ 1,000,000 in ascending 
 '''
 
 
-from functools import reduce
-def gcd(*numbers):
-    """Return the greatest common divisor of the given integers"""
-    from fractions import gcd
-    return reduce(gcd, numbers)
-
-
 def p71():
     n0, n1 = 3, 428571   # 2999997
     d0, d1 = 7, 1000000  # 7000000
     f0 = n0 / d0
     f1 = n1 / d1
-    max_f2 = 0
-    max_n2 = 0
     for n2 in range(428571, 1, -1):
         for d2 in range(1000000, 1, -1):
             f2 = n2 / d2
@@ -981,6 +973,45 @@ If we list the set of reduced proper fractions for d ≤ 8 in ascending order of
 It can be seen that there are 21 elements in this set.
 How many elements would be contained in the set of reduced proper fractions for d ≤ 1,000,000?
 '''
+
+
+def p72_dreamshire():  # for python2
+    L = 1000000
+    phi = range(L + 1)
+    for n in range(2, L + 1):
+        if phi[n] == n:
+            for k in range(n, L + 1, n):
+                phi[k] -= phi[k] // n
+                return
+    print(sum(phi) - 1)
+
+
+def p72():
+    return
+    LIMIT = 1000000
+    cnt = LIMIT - 1  # 1/2 ... 1/999999
+    for i in range(2, LIMIT):
+        remain = LIMIT - i
+        cnt += remain
+        pfs = prime_factors_uniq(i)
+        for j in range(1, len(pfs) + 1):
+            ps = combinations(pfs, j)
+            for p in ps:
+                if j % 2 == 1:
+                    if j == 1:
+                        int_p = int(''.join(map(str, p)))
+                    else:
+                        int_p = reduce(lambda x, y: int(x) * int(y), p)
+                    cnt -= remain // int_p
+                elif j % 2 == 0:
+                    int_p = reduce(lambda x, y: int(x) * int(y), p)
+                    cnt += remain // int_p
+                else:
+                    break
+    print('[72]: ', cnt)
+    return
+
+
 '''
 Problem 73
 Consider the fraction, n/d, where n and d are positive integers. If n<d and HCF(n,d)=1, it is called a reduced proper fraction.
@@ -989,6 +1020,11 @@ If we list the set of reduced proper fractions for d ≤ 8 in ascending order of
 It can be seen that there are 3 fractions between 1/3 and 1/2.
 How many fractions lie between 1/3 and 1/2 in the sorted set of reduced proper fractions for d ≤ 12,000?
 '''
+
+
+def p73():
+    return
+
 
 '''
 Problem 74
@@ -1035,7 +1071,12 @@ def p74():
 '''
 Problem 75
 It turns out that 12 cm is the smallest length of wire that can be bent to form an integer sided right angle triangle in exactly one way, but there are many more examples.
-12 cm: (3,4,5)24 cm: (6,8,10)30 cm: (5,12,13)36 cm: (9,12,15)40 cm: (8,15,17)48 cm: (12,16,20)
+    12 cm: (3,4,5)
+    24 cm: (6,8,10)
+    30 cm: (5,12,13)
+    36 cm: (9,12,15)
+    40 cm: (8,15,17)
+    48 cm: (12,16,20)
 In contrast, some lengths of wire, like 20 cm, cannot be bent to form an integer sided right angle triangle,
 and other lengths allow more than one solution to be found; for example,
 using 120 cm it is possible to form exactly three different integer sided right angle triangles.
