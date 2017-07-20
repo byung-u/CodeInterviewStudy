@@ -103,6 +103,15 @@ def factors(n):
     return results
 
 
+def factor_sum(n):
+    results = set()
+    for i in range(2, int(sqrt(n)) + 1):
+        if n % i == 0:
+            results.add(i)
+            results.add(int(n/i))
+    return sum(results) + 1
+
+
 def is_square(integer):
     root = sqrt(integer)
     if int(root + 0.5) ** 2 == integer:
@@ -196,4 +205,25 @@ def phi(n):
     for pf in pfs:
         p *= (1 - (1/pf))
     return int(round(n * p))
+
+
+def gcd(*numbers):
+    """Return the greatest common divisor of the given integers"""
+    from fractions import gcd
+    return reduce(gcd, numbers)
+
+
+# https://en.wikipedia.org/wiki/Fermat_primality_test#Concept
+# https://gist.github.com/bnlucas/5857437
+# a ^ (n-1) ≡ 1 (mod n)
+def is_prime_fermat(n):
+    if n == 2:
+        return True
+    if not n & 1:
+        return False
+
+    # Pick a randomly in the range [2, n − 2]
+    # use 2
+    return pow(n - 2, n - 1, n) == 1  # 2 ^ (n - 1) ≡ 1 (mod n)
+
 
