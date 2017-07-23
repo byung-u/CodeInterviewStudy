@@ -227,3 +227,6 @@ def is_prime_fermat(n):
     return pow(n - 2, n - 1, n) == 1  # 2 ^ (n - 1) ≡ 1 (mod n)
 
 
+
+
+
