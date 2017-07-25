@@ -12,7 +12,18 @@ Surprisingly, bouncy numbers become more and more common and by the time we reac
 Find the least number for which the proportion of bouncy numbers is exactly 99%.
 '''
 
-def is_bouncy(n):
+def is_bouncy(n):  # dreamshire
+    inc, dec, s = False, False, str(n)
+    for i in range(len(s)-1):
+        if s[i+1] > s[i]:
+            inc = True
+        elif s[i+1] < s[i]:
+            dec = True
+        if inc and dec:
+            return True
+    return False
+
+def is_bouncy_slow(n):
     POSITIVE = 1
     NEGATIVE = 2
     last_flag = 0
