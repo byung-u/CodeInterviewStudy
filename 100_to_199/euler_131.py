@@ -10,7 +10,7 @@ How many primes below one million have this remarkable property?
 '''
 
 
-from util import prime_sieve
+from util import prime_sieve, is_prime
 from itertools import count
 
 
@@ -19,7 +19,7 @@ def is_perfect_cube(x):
     return int(round(x ** (1. / 3))) ** 3 == x
 
 
-def p131():  # Answer: 173, 68.54s  Mac pro 2016
+def p131_slow():  # Answer: 173, 68.54s  Mac pro 2016
     cnt = 0
     primes = prime_sieve(1000000)
     for p in primes:
@@ -34,5 +34,17 @@ def p131():  # Answer: 173, 68.54s  Mac pro 2016
                 break
     print(cnt)
 
+
+def p131():
+    # n**3 + p = (n+1)**3
+    # p = 3n**2 + 3n + 1
+    cnt = 0
+    for n in count(1):
+        p = 3 * (n ** 2) + 3 * n + 1
+        if p >= 1000000:
+            break
+        if is_prime(p):
+            cnt += 1
+    print(cnt)
 
 p131()
