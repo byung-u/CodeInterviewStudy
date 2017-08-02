@@ -1262,6 +1262,45 @@ Find the least value of n for which p(n) is divisible by one million.
 '''
 
 
+def pentagonal_seq(n):  # https://oeis.org/A001318
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    return n * (3 * n - 1) // 2
+
+
+def partition(n, part, penta):  # https://oeis.org/A000041
+    if n == 0:
+        return 1
+    if n == 1:
+        return 1
+    ret = 0
+    for idx, p in enumerate(penta):
+        if n - p < 0:
+            break
+        if idx % 4 == 0 or idx % 4 == 1:
+            ret += part[n - p]
+        else:
+            ret -= part[n - p]
+    return ret
+
+
+def p78():  # Answer 55374  6.31 sec
+    part = [1, 1]
+    penta = []
+    for i in range(1, 1000000):
+        penta.append(pentagonal_seq(i))
+        penta.append(pentagonal_seq(i * -1))
+
+    for n in count(2, 1):
+        ret = partition(n, part, penta)
+        part.append(ret)
+        if ret % 1000000 == 0:
+            print('[78]: ', n)
+            return
+
+
 '''
 Problem 79
 A common security method used for online banking is to ask the user for three random characters from a passcode.
