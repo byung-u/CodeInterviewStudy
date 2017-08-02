@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from itertools import count, combinations
-from math import factorial, sqrt
+from decimal import getcontext, Decimal
 from functools import reduce
+from itertools import count, combinations, permutations, product
+from math import factorial, sqrt
+from operator import add, sub, mul, truediv
 
 from util import (is_palindromic, is_prime, is_triangle, prime_sieve,
                   is_square, is_pentagonal, is_hexagonal, is_heptagonal,
                   is_octagonal, phi, prime_factors_uniq, gcd,
-                  factor_sum)
-
+                  factor_sum, hyp)
 
 '''
 Problem 51
@@ -1260,44 +1261,6 @@ O   O   O   O   O
 Find the least value of n for which p(n) is divisible by one million.
 '''
 
-# http://www.geeksforgeeks.org/dynamic-programming-set-7-coin-change/
-# Dynamic Programming Python implementation of Coin
-# Change problem
-# This code is contributed by Afzal Ansari
-def p78_count(S, m, n):
-    # table[i] will be storing the number of solutions for
-    # value i. We need n+1 rows as the table is constructed
-    # in bottom up manner using the base case (n = 0)
-    # Initialize all table values as 0
-    table = [0 for k in range(n+1)]
-
-    # Base case (If given value is 0)
-    table[0] = 1
-
-    # Pick all coins one by one and update the table[] values
-    # after the index greater than or equal to the value of the
-    # picked coin
-    for i in range(0,m):
-        for j in range(S[i],n+1):
-            table[j] += table[j-S[i]]
-
-    return table[n]
-
-
-# https://en.wikipedia.org/wiki/Partition_(number_theory)#Generating_function
-# https://oeis.org/A000041
-def p78():
-    # Driver program to test above function
-    for L in count(100, 1):
-        arr = [i for i in range(1, L)]
-        m = len(arr)
-        n = L
-        x = p78_count(arr, m, n)
-        if x % 1000000 == 0:
-            print(L)
-            break
-    return
-
 
 '''
 Problem 79
@@ -1373,9 +1336,8 @@ For the first one hundred natural numbers, find the total of the digital sums of
 '''
 
 
-from decimal import getcontext, Decimal
 def p80():
-    getcontext().prec = 102   #  Decimal automatically round last digit
+    getcontext().prec = 102   # Decimal automatically round last digit
     total = 0
     for i in range(1, 101):
         if is_square(i):
@@ -1404,13 +1366,15 @@ a 31K text file containing a 80 by 80 matrix,
 from the top left to the bottom right by only moving right and down.
 '''
 
+
 def get_matrix():
     matrix = []
     f = open('text/p081_matrix.txt')
     for line in f:
         m = line.replace('\n', '').split(',')
         matrix.append(list(map(int, m)))
-    return matrix  
+    return matrix
+
 
 # http://www.geeksforgeeks.org/dynamic-programming-set-6-min-cost-path/
 def minCost(matrix, m, n):
@@ -1422,16 +1386,16 @@ def minCost(matrix, m, n):
     tc[0][0] = matrix[0][0]
 
     # Initialize first column of total cost(tc) array
-    for i in range(1, m+1):  # x[0], y[1 ~ 80]
-        tc[i][0] = tc[i-1][0] + matrix[i][0]
+    for i in range(1, m + 1):  # x[0], y[1 ~ 80]
+        tc[i][0] = tc[i - 1][0] + matrix[i][0]
     # Initialize first row of tc array
-    for j in range(1, n+1):  # y[0], x[1 ~ 80]
-        tc[0][j] = tc[0][j-1] + matrix[0][j]
+    for j in range(1, n + 1):  # y[0], x[1 ~ 80]
+        tc[0][j] = tc[0][j - 1] + matrix[0][j]
 
     # Construct rest of the tc array
-    for i in range(1, m+1):  # 1 ~ 80
-        for j in range(1, n+1):  # 1 ~ 80
-            tc[i][j] = min(tc[i-1][j], tc[i][j-1]) + matrix[i][j]
+    for i in range(1, m + 1):  # 1 ~ 80
+        for j in range(1, n + 1):  # 1 ~ 80
+            tc[i][j] = min(tc[i - 1][j], tc[i][j - 1]) + matrix[i][j]
             # tc[i][j] = min(tc[i-1][j-1], tc[i-1][j], tc[i][j-1]) + cost[i][j]
         for t in tc:
             print(t)
@@ -1468,19 +1432,20 @@ def p82_get_matrix():
     for line in f:
         m = line.replace('\n', '').split(',')
         matrix.append(list(map(int, m)))
-    return matrix  
+    return matrix
+
 
 # http://www.geeksforgeeks.org/dynamic-programming-set-6-min-cost-path/
 def p82_minCost(matrix):
 
     n, m = len(matrix), len(matrix[0])
     cost = [matrix[i][-1] for i in range(n)]
-    for i in range(m-2, -1, -1):
+    for i in range(m - 2, -1, -1):
         cost[0] += matrix[0][i]
         for j in range(1, n):
-            cost[j] = min(cost[j], cost[j-1]) + matrix[j][i]
-        for j in range(n-2, -1, -1):
-            cost[j] = min(cost[j], cost[j+1] + matrix[j][i])
+            cost[j] = min(cost[j], cost[j - 1]) + matrix[j][i]
+        for j in range(n - 2, -1, -1):
+            cost[j] = min(cost[j], cost[j + 1] + matrix[j][i])
     return min(cost)
 
 
@@ -1507,9 +1472,9 @@ Find the minimal path sum, in matrix.txt (right click and
 "Save Link/Target As..."), a 31K text file containing a 80 by 80 matrix, from the top left to the bottom right by moving left, right, up, and down.
 '''
 
+
 def p83():
     print('test')
-
 
 
 '''
@@ -1662,7 +1627,10 @@ What is the sum of all the minimal product-sum numbers for 2≤k≤12000?
 
 '''
 Problem 89
-For a number written in Roman numerals to be considered valid there are basic rules which must be followed. Even though the rules allow some numbers to be expressed in more than one way there is always a "best" way of writing a particular number.
+For a number written in Roman numerals to be considered valid
+there are basic rules which must be followed.
+Even though the rules allow some numbers to be expressed in more than
+one way there is always a "best" way of writing a particular number.
 For example, it would appear that there are at least six ways of writing the number sixteen:
 IIIIIIIIIIIIIIII
 VIIIIIIIIIII
@@ -1670,20 +1638,30 @@ VVIIIIII
 XIIIIII
 VVVI
 XVI
-However, according to the rules only XIIIIII and XVI are valid, and the last example is considered to be the most efficient, as it uses the least number of numerals.
-The 11K text file, roman.txt (right click and 'Save Link/Target As...'), contains one thousand numbers written in valid, but not necessarily minimal, Roman numerals; see About... Roman Numerals for the definitive rules for this problem.
+However, according to the rules only XIIIIII and XVI are valid,
+and the last example is considered to be the most efficient,
+as it uses the least number of numerals.
+The 11K text file, roman.txt (right click and 'Save Link/Target As...'), contains one thousand numbers written in valid,
+but not necessarily minimal, Roman numerals; see About... Roman Numerals for the definitive rules for this problem.
 Find the number of characters saved by writing each of these in their minimal form.
 Note: You can assume that all the Roman numerals in the file contain no more than four consecutive identical units.
 '''
 '''
 Problem 90
-Each of the six faces on a cube has a different digit (0 to 9) written on it; the same is done to a second cube. By placing the two cubes side-by-side in different positions we can form a variety of 2-digit numbers.
+Each of the six faces on a cube has a different digit (0 to 9) written on it;
+the same is done to a second cube.
+By placing the two cubes side-by-side in different positions we can form a variety of 2-digit numbers.
 For example, the square number 64 could be formed:
 
 
-In fact, by carefully choosing the digits on both cubes it is possible to display all of the square numbers below one-hundred: 01, 04, 09, 16, 25, 36, 49, 64, and 81.
-For example, one way this can be achieved is by placing {0, 5, 6, 7, 8, 9} on one cube and {1, 2, 3, 4, 8, 9} on the other cube.
-However, for this problem we shall allow the 6 or 9 to be turned upside-down so that an arrangement like {0, 5, 6, 7, 8, 9} and {1, 2, 3, 4, 6, 7} allows for all nine square numbers to be displayed; otherwise it would be impossible to obtain 09.
+In fact, by carefully choosing the digits on both cubes it is possible to display all of the square numbers
+below one-hundred: 01, 04, 09, 16, 25, 36, 49, 64, and 81.
+For example, one way this can be achieved is
+by placing {0, 5, 6, 7, 8, 9} on one cube
+and {1, 2, 3, 4, 8, 9} on the other cube.
+However, for this problem we shall allow the 6 or 9 to be turned upside-down so that an arrangement like
+{0, 5, 6, 7, 8, 9} and {1, 2, 3, 4, 6, 7} allows for all nine square numbers to be displayed;
+otherwise it would be impossible to obtain 09.
 In determining a distinct arrangement we are interested in the digits on each cube, not the order.
 {1, 2, 3, 4, 5, 6} is equivalent to {3, 6, 4, 1, 2, 5}
 {1, 2, 3, 4, 5, 6} is distinct from {1, 2, 3, 4, 5, 9}
@@ -1744,22 +1722,22 @@ def p92():  # 130 sec > runtime
 
 '''
 Problem 93
-By using each of the digits from the set, {1, 2, 3, 4}, exactly once, and making use of the four arithmetic operations (+, −, *, /) and brackets/parentheses, it is possible to form different positive integer targets.
+By using each of the digits from the set, {1, 2, 3, 4}, exactly once,
+and making use of the four arithmetic operations (+, −, *, /) and brackets/parentheses,
+it is possible to form different positive integer targets.
 For example,
 8 = (4 * (1 + 3)) / 2
 14 = 4 * (3 + 1 / 2)
 19 = 4 * (2 + 3) − 1
 36 = 3 * 4 * (2 + 1)
 Note that concatenations of the digits, like 12 + 34, are not allowed.
-Using the set, {1, 2, 3, 4}, it is possible to obtain thirty-one different target numbers of which 36 is the maximum, and each of the numbers 1 to 28 can be obtained before encountering the first non-expressible number.
+Using the set, {1, 2, 3, 4}, it is possible to obtain thirty-one different target numbers of which 36 is the maximum,
+and each of the numbers 1 to 28 can be obtained before encountering the first non-expressible number.
 Find the set of four distinct digits, a < b < c < d, for which the longest set of consecutive positive integers, 1 to n, can be obtained, giving your answer as a string: abcd.
 '''
 
 
 # dreamshire...
-from operator import add, sub, mul, truediv
-from itertools import permutations, combinations, product
-from functools import reduce
 
 
 def p93():
@@ -1780,12 +1758,11 @@ def p93():
         seq = 1
         while seq in res:
             seq += 1
-        if max_seq < seq - 1: 
+        if max_seq < seq - 1:
             max_seq = seq - 1
             max_t = t
 
     print('[93]', reduce(lambda x, y: str(x) + str(y), max_t))
-
 
 
 '''
@@ -1796,6 +1773,27 @@ We shall define an almost equilateral triangle to be a triangle for which two si
 Find the sum of the perimeters of all almost equilateral triangles with integral side lengths and area and whose perimeters do not exceed one billion
 (1,000,000,000).
 '''
+
+
+def p94():
+    total = 0
+    L = 10 ** 9
+    for x in count(2, 1):
+        i = hyp(x)
+        i_double = i ** 2
+        j = (i + 1) // 2
+        if is_square(i_double - j ** 2):
+            if (3 * i) + 1 > L:
+                break
+            total += (3 * i) + 1
+        j = (i - 1) // 2
+        if is_square(i_double - j ** 2):
+            if (3 * i) - 1 > L:
+                break
+            total += (3 * i) - 1
+    print('[94]: ', total)
+
+
 '''
 Problem 95
 The proper divisors of a number are all the divisors excluding the number itself. For example, the proper divisors of 28 are 1, 2, 4, 7, and 14.
@@ -1832,7 +1830,12 @@ def p95():  # 100 sec > run time
 
 '''
 Problem 96
-Su Doku (Japanese meaning number place) is the name given to a popular puzzle concept. Its origin is unclear, but credit must be attributed to Leonhard Euler who invented a similar, and much more difficult, puzzle idea called Latin Squares. The objective of Su Doku puzzles, however, is to replace the blanks (or zeros) in a 9 by 9 grid in such that each row, column, and 3 by 3 box contains each of the digits 1 to 9. Below is an example of a typical starting puzzle grid and its solution grid.
+Su Doku (Japanese meaning number place) is the name given to a popular puzzle concept.
+Its origin is unclear, but credit must be attributed to Leonhard Euler who invented a similar,
+and much more difficult, puzzle idea called Latin Squares.
+The objective of Su Doku puzzles, however, is to replace the blanks (or zeros) in a 9 by 9 grid in such that each row, column,
+and 3 by 3 box contains each of the digits 1 to 9.
+Below is an example of a typical starting puzzle grid and its solution grid.
 
 
 0 0 39 0 00 0 1
@@ -1858,14 +1861,21 @@ Su Doku (Japanese meaning number place) is the name given to a popular puzzle co
 5 1 47 6 93 8 2
 
 
-A well constructed Su Doku puzzle has a unique solution and can be solved by logic, although it may be necessary to employ "guess and test" methods in order to eliminate options (there is much contested opinion over this). The complexity of the search determines the difficulty of the puzzle; the example above is considered easy because it can be solved by straight forward direct deduction.
-The 6K text file, sudoku.txt (right click and 'Save Link/Target As...'), contains fifty different Su Doku puzzles ranging in difficulty, but all with unique solutions (the first puzzle in the file is the example above).
-By solving all fifty puzzles find the sum of the 3-digit numbers found in the top left corner of each solution grid; for example, 483 is the 3-digit number found in the top left corner of the solution grid above.
+A well constructed Su Doku puzzle has a unique solution and can be solved by logic,
+although it may be necessary to employ "guess and test" methods in order to eliminate options (there is much contested opinion over this).
+The complexity of the search determines the difficulty of the puzzle; the example above is considered easy because it can be solved by straight forward direct deduction.
+The 6K text file, sudoku.txt (right click and 'Save Link/Target As...'), contains fifty different Su Doku puzzles ranging in difficulty,
+but all with unique solutions (the first puzzle in the file is the example above).
+By solving all fifty puzzles find the sum of the 3-digit numbers found in the top left corner of each solution grid;
+for example, 483 is the 3-digit number found in the top left corner of the solution grid above.
 '''
 
 '''
 Problem 97
-The first known prime found to exceed one million digits was discovered in 1999, and is a Mersenne prime of the form 2^6972593 − 1; it contains exactly 2,098,960 digits. Subsequently other Mersenne primes, of the form 2p−1, have been found which contain more digits.
+The first known prime found to exceed one million digits was discovered in 1999,
+and is a Mersenne prime of the form 2^6972593 − 1;
+it contains exactly 2,098,960 digits.
+Subsequently other Mersenne primes, of the form 2p−1, have been found which contain more digits.
 However, in 2004 there was found a massive non-Mersenne prime which contains 2,357,207 digits: 28433×2^7830457+1.
 Find the last ten digits of this prime number.
 '''
@@ -1900,7 +1910,8 @@ NOTE: All anagrams formed must be contained in the given text file.
 Problem 99
 Comparing two numbers written in index form like 211 and 37 is not difficult, as any calculator would confirm that 2^11 = 2048 < 3^7 = 2187.
 However, confirming that 632382^518061 > 519432^525806 would be much more difficult, as both numbers contain over three million digits.
-Using base_exp.txt (right click and 'Save Link/Target As...'), a 22K text file containing one thousand lines with a base/exponent pair on each line, determine which line number has the greatest numerical value.
+Using base_exp.txt (right click and 'Save Link/Target As...'), a 22K text file containing one thousand lines with a base/exponent pair
+on each line, determine which line number has the greatest numerical value.
 NOTE: The first two lines in the file represent the numbers in the example given above.
 '''
 
