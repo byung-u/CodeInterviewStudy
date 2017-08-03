@@ -4,13 +4,33 @@ from math import sqrt
 from functools import reduce
 
 
-def fib(n):
-    M[2][2] = [[1,0],[0,1]]
-    for i in range(1, n):
-        M = M * [[1,1],[1,0]]
-    return M[0][0];
+# Sample
+# --------------------------
+# return sum(1 for x in range(n+1,  n * 2+1) if ((n * x) % (x - n) == 0))
+# ------ use above style ---
+# cnt = 0
+# for x in range(n+1,  n * 2+1)
+#   if ((n * x) % (x - n) == 0)
+#       cnt += 1
+# print(cnt)
+# --------------------------
+def matmult(X, Y):
+    result = [[0, 0], [0, 0]]
+    for i in range(len(X)):
+        for j in range(len(Y[0])):
+            for k in range(len(Y)):
+                result[i][j] += X[i][k] * Y[k][j]
+    return result
 
-#def fib(n):
+
+def fib(n):
+    M = [[1, 0], [0, 1]]
+    for i in range(1, n):
+        M = matmult(M, [[1, 1], [1, 0]])
+    return M[0][0]
+
+
+# def fib(n):
 #    '''
 #    http://oeis.org/A000045
 #    http://mathworld.wolfram.com/FibonacciNumber.html
@@ -99,7 +119,7 @@ def factors(n):
     for i in range(1, int(sqrt(n)) + 1):
         if n % i == 0:
             results.add(i)
-            results.add(int(n/i))
+            results.add(int(n / i))
     return results
 
 
@@ -108,16 +128,8 @@ def factor_sum(n):
     for i in range(2, int(sqrt(n)) + 1):
         if n % i == 0:
             results.add(i)
-            results.add(int(n/i))
+            results.add(int(n / i))
     return sum(results) + 1
-
-
-def is_square(integer):
-    root = sqrt(integer)
-    if int(root + 0.5) ** 2 == integer:
-        return True
-    else:
-        return False
 
 
 def prime_sieve(sieveSize):
@@ -145,7 +157,7 @@ def prime_sieve(sieveSize):
 
 
 def triangle_number(n):
-    return int((n * (n+1)) / 2)
+    return int((n * (n + 1)) / 2)
 
 
 def pentagonal_number(n):
@@ -203,7 +215,7 @@ def phi(n):
     pfs = prime_factors_uniq(n)
     p = 1
     for pf in pfs:
-        p *= (1 - (1/pf))
+        p *= (1 - (1 / pf))
     return int(round(n * p))
 
 
@@ -216,17 +228,39 @@ def gcd(*numbers):
 # https://en.wikipedia.org/wiki/Fermat_primality_test#Concept
 # https://gist.github.com/bnlucas/5857437
 # a ^ (n-1) ≡ 1 (mod n)
+# use a is n - 2
 def is_prime_fermat(n):
     if n == 2:
         return True
     if not n & 1:
         return False
 
-    # Pick a randomly in the range [2, n − 2]
-    # use 2
-    return pow(n - 2, n - 1, n) == 1  # 2 ^ (n - 1) ≡ 1 (mod n)
+    return pow(n - 2, n - 1, n) == 1
 
 
+# https://oeis.org/A120893
+# https://oeis.org/A195531
+# Hypotenuses of Pythagorean triples
+def hyp(x):  # hypotenuses_of_pythagorean
+    if x == 0:
+        return 1
+    if x == 1:
+        return 1
+    if x == 2:
+        return 5
+    return 3 * hyp(x - 1) + 3 * hyp(x - 2) - hyp(x - 3)
 
 
+def digit_sum(n):
+    r = 0
+    while n != 0:
+        r, n = r + n % 10, n // 10
+    return r
 
+
+def rad(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    return reduce(lambda x, y: x * y, list(prime_factors_uniq(n)))
