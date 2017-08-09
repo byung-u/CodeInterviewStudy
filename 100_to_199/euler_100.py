@@ -18,6 +18,12 @@ def get_nominator(n):
     return a
 
 
+def p100_use_diophantine():
+    L, x, y = 10 ** 12, 1, 1
+    while y < L: x, y = 3 * x + 2 * y - 2, 4 * x + 3 * y - 3
+    print(x)
+
+
 # Actually Diophantine pairs.. https://oeis.org/A011900
 def p100():  # Answer: 756872327473, 0.01s
     L = 10 ** 12
