@@ -27,7 +27,7 @@ def a(n):
     return 17 * a(n - 1) + 17 * a(n - 2) - a(n - 3)
 
 
-def p138():
+def p138():  # Answer 1118049290473932
     highs = [a(i) for i in range(0, 12)]
     result = []
     for h in highs:
