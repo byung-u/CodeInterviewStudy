@@ -9,7 +9,7 @@ from operator import add, sub, mul, truediv
 from util import (is_palindromic, is_prime, is_triangle, prime_sieve,
                   is_square, is_pentagonal, is_hexagonal, is_heptagonal,
                   is_octagonal, phi, prime_factors_uniq, gcd,
-                  factor_sum, hyp)
+                  factor_sum, hyp, Graph, shortest_path)
 
 '''
 Problem 51
@@ -1513,7 +1513,29 @@ Find the minimal path sum, in matrix.txt (right click and
 
 
 def p83():
-    print('test')
+    matrix = []
+    with open('text/p083_matrix.txt') as f:
+        for line in f:
+            matrix.append(list(map(int, line.split(','))))
+    n, m = len(matrix), len(matrix[0])
+    graph = Graph()
+    for i in range(n):
+        str_i = '%.2d' % i
+        for j in range(m):
+            str_j = '%.2d' % j
+            node = str_i + str_j
+            graph.add_node(node)
+            # print(node, matrix[i][j], end="")
+            for x, y in (-1, 0), (0, -1), (1, 0), (0, 1):
+                if 0 <= i + x < n and 0 <= j + y < m:
+                    str_ix = '%.2d' % (i + x)
+                    str_jy = '%.2d' % (j + y)
+                    neighbor = str_ix + str_jy
+                    # print('\t', neighbor, matrix[i+x][j+y], end="")
+                    graph.add_edge(node, neighbor, matrix[i + x][j + y])
+            # print('')
+    print('Answer = ', shortest_path(graph, '0000', '7979')[0] + matrix[0][0])
+    return
 
 
 '''
@@ -1944,10 +1966,13 @@ Using words.txt (right click and 'Save Link/Target As...'), a 16K text file cont
 find all the square anagram word pairs (a palindromic word is NOT considered to be an anagram of itself).
 What is the largest square number formed by any member of such a pair?
 NOTE: All anagrams formed must be contained in the given text file.
+
+
+
 '''
 '''
 Problem 99
-Comparing two numbers written in index form like 211 and 37 is not difficult, as any calculator would confirm that 2^11 = 2048 < 3^7 = 2187.
+Comparing two numbers written in index form like 2^11 and 3^7 is not difficult, as any calculator would confirm that 2^11 = 2048 < 3^7 = 2187.
 However, confirming that 632382^518061 > 519432^525806 would be much more difficult, as both numbers contain over three million digits.
 Using base_exp.txt (right click and 'Save Link/Target As...'), a 22K text file containing one thousand lines with a base/exponent pair
 on each line, determine which line number has the greatest numerical value.
@@ -1956,11 +1981,4 @@ NOTE: The first two lines in the file represent the numbers in the example given
 
 
 def p99():
-    base_exp = []
-    with open('text/p099_base_exp.txt') as f:
-        for line in f:
-            l = line.replace('\n', '').split(',')
-            base = int(l[0])
-            exp = int(l[1])
-            base_exp.append(pow(base, exp, 2))
-    print(base_exp.index(max(base_exp)) + 1)
+    return
