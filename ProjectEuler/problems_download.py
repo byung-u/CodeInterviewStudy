@@ -14,13 +14,13 @@ def match_soup_class(target, mode='class'):
 
 
 def main():
-    with open('p51_100.py', 'a') as f:
+    with open('p201_300.py', 'a') as f:
         if len(sys.argv) == 1:
             p = 1
         else:
             p = int(sys.argv[1])
 
-        for i in range(p, p + 2):
+        for i in range(p, p + 100):
             # url = 'https://projecteuler.net/problem=%d' % p
             url = 'https://projecteuler.net/problem=%d' % i
             r = get(url)
